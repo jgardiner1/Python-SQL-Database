@@ -1,0 +1,152 @@
+2023-07-24 21:34:14,910:ERROR: 1049 - SQLSTATE value: 42000 - Error Message: Unknown database 'database1'
+2023-07-24 21:34:14,910:Attempting to create database Database1
+2023-07-24 21:34:14,919:Successfully created database: Database1
+2023-07-24 21:34:14,933:Successfully created table: Contractors
+2023-07-24 21:34:38,584:Successfully insert into: Contractors - INFO: , Electrician, , , 0
+2023-07-24 21:34:42,338:Successfully deleted entry from: Contractors - INFO: ('', 'Electrician', '', '', 0)
+2023-07-24 21:34:48,376:Successfully connected to database: Database1
+2023-07-24 21:35:07,039:Successfully insert into: Contractors - INFO: James, Plumber, james@james.com, 0, 0
+2023-07-24 21:35:20,047:Successfully insert into: Contractors - INFO: James, Plumber, james@james.com, 0, 0
+2023-07-24 21:37:19,768:Successfully connected to database: Database1
+2023-07-24 21:39:07,130:Successfully connected to database: Database1
+2023-07-24 21:39:47,780:ERROR: 1049 - SQLSTATE value: 42000 - Error Message: Unknown database 'database1'
+2023-07-24 21:39:47,781:Attempting to create database Database1
+2023-07-24 21:39:47,786:Successfully created database: Database1
+2023-07-24 21:39:47,800:Successfully created table: Contractors
+2023-07-24 21:40:44,198:ERROR: 1049 - SQLSTATE value: 42000 - Error Message: Unknown database 'database1'
+2023-07-24 21:40:44,198:Attempting to create database Database1
+2023-07-24 21:40:44,203:Successfully created database: Database1
+2023-07-24 21:40:44,221:Successfully created table: Contractors
+2023-07-25 19:50:06,224:Successfully connected to database: Database1
+2023-07-25 19:51:22,754:ERROR: 1049 - SQLSTATE value: 42000 - Error Message: Unknown database 'database1'
+2023-07-25 19:51:22,754:Attempting to create database Database1
+2023-07-25 19:51:22,760:Successfully created database: Database1
+2023-07-25 19:51:22,772:Successfully created table: Contractors
+2023-07-25 19:59:19,542:Successfully connected to database: Database1
+2023-07-25 20:06:12,938:Successfully connected to database: Database1
+2023-07-25 20:06:41,577:Successfully connected to database: Database1
+2023-07-25 20:07:21,731:Successfully connected to database: Database1
+2023-07-25 20:08:23,852:Successfully insert into: Contractors - INFO: test300, Bricklayer, test29@gmail.com, 1268000300, 0
+2023-07-25 20:11:50,818:ERROR: 1049 - SQLSTATE value: 42000 - Error Message: Unknown database 'database1'
+2023-07-25 20:11:50,818:Attempting to create database Database1
+2023-07-25 20:11:50,825:Successfully created database: Database1
+2023-07-25 20:11:50,844:Successfully created table: Contractors
+2023-07-25 20:16:44,645:Successfully connected to database: Database1
+2023-07-25 20:17:12,666:Successfully connected to database: Database1
+2023-07-25 20:17:39,101:Successfully connected to database: Database1
+2023-07-25 20:18:06,038:Successfully connected to database: Database1
+2023-07-25 20:18:18,135:Successfully connected to database: Database1
+2023-07-25 20:18:42,857:Successfully connected to database: Database1
+2023-07-25 20:18:58,547:Successfully insert into: Contractors - INFO: James, Plumber, james@james.com, 01268541451, 1
+2023-07-25 20:19:50,481:Successfully connected to database: Database1
+2023-07-25 20:22:48,997:Successfully connected to database: Database1
+2023-07-25 20:23:11,627:Successfully connected to database: Database1
+2023-07-25 20:23:34,896:Successfully connected to database: Database1
+2023-07-25 20:38:56,826:Successfully connected to database: Database1
+2023-07-25 20:39:04,660:Successfully connected to database: Database1
+2023-07-25 20:39:10,930:Successfully deleted entry from: Contractors - INFO: ('James', 'Plumber', 'james@james.com', '01268541451', 1)
+2023-07-25 20:39:30,556:Successfully connected to database: Database1
+2023-07-25 21:58:46,959:Successfully connected to database: Database1
+2023-07-25 21:59:33,501:Successfully connected to database: Database1
+2023-07-25 22:01:23,040:Successfully connected to database: Database1
+2023-07-25 22:01:42,493:Successfully connected to database: Database1
+2023-07-25 22:01:58,869:Successfully connected to database: Database1
+2023-07-25 22:02:39,807:Successfully connected to database: Database1
+2023-07-25 22:02:50,338:Successfully connected to database: Database1
+2023-07-25 22:03:03,365:Successfully connected to database: Database1
+2023-07-25 22:03:14,031:Successfully connected to database: Database1
+2023-07-25 22:04:46,431:Successfully connected to database: Database1
+2023-07-25 22:06:43,245:Successfully connected to database: Database1
+2023-07-25 22:09:59,521:Successfully connected to database: Database1
+2023-07-25 22:10:32,850:Successfully connected to database: Database1
+2023-07-25 22:10:57,097:Successfully connected to database: Database1
+2023-07-25 22:11:14,754:Successfully connected to database: Database1
+2023-07-25 22:11:30,351:Successfully connected to database: Database1
+2023-07-25 22:12:35,279:Successfully connected to database: Database1
+2023-07-25 22:12:54,609:Successfully connected to database: Database1
+2023-07-25 22:13:09,348:Successfully connected to database: Database1
+2023-07-25 22:13:37,393:Successfully connected to database: Database1
+2023-07-25 22:13:52,477:Successfully connected to database: Database1
+2023-07-25 22:15:02,955:Successfully connected to database: Database1
+2023-07-25 22:15:21,726:Successfully connected to database: Database1
+2023-07-25 22:15:26,590:Successfully connected to database: Database1
+2023-07-25 22:15:34,458:Successfully connected to database: Database1
+2023-07-25 22:16:14,314:Successfully connected to database: Database1
+2023-07-25 22:18:29,335:Successfully connected to database: Database1
+2023-07-25 22:19:42,337:Successfully connected to database: Database1
+2023-07-25 22:22:22,148:Successfully connected to database: Database1
+2023-07-25 22:22:45,027:Successfully connected to database: Database1
+2023-07-25 22:23:40,614:Successfully connected to database: Database1
+2023-07-25 22:25:40,037:Successfully connected to database: Database1
+2023-07-25 22:27:20,656:Successfully connected to database: Database1
+2023-07-25 22:28:10,998:Successfully connected to database: Database1
+2023-07-25 22:28:34,671:Successfully connected to database: Database1
+2023-07-25 22:29:10,373:Successfully connected to database: Database1
+2023-07-25 22:29:39,736:Successfully connected to database: Database1
+2023-07-25 22:30:23,586:Successfully connected to database: Database1
+2023-07-25 22:30:56,370:Successfully connected to database: Database1
+2023-07-25 22:31:26,538:Successfully connected to database: Database1
+2023-07-25 22:32:24,961:Successfully connected to database: Database1
+2023-07-25 22:34:55,752:Successfully connected to database: Database1
+2023-07-25 22:35:45,782:ERROR: 1049 - SQLSTATE value: 42000 - Error Message: Unknown database 'database1'
+2023-07-25 22:35:45,782:Attempting to create database Database1
+2023-07-25 22:35:45,787:Successfully created database: Database1
+2023-07-25 22:35:45,800:Successfully created table: Contractors
+2023-07-25 22:36:35,440:Successfully connected to database: Database1
+2023-07-25 22:37:26,070:Successfully connected to database: Database1
+2023-07-25 22:37:41,579:Successfully connected to database: Database1
+2023-07-25 22:42:45,430:Successfully connected to database: Database1
+2023-07-25 22:44:29,074:Successfully connected to database: Database1
+2023-07-25 22:44:55,242:Successfully connected to database: Database1
+2023-07-25 22:46:20,135:Successfully connected to database: Database1
+2023-07-25 22:48:10,451:Successfully connected to database: Database1
+2023-07-25 22:48:33,400:Successfully connected to database: Database1
+2023-07-25 22:49:35,839:Successfully connected to database: Database1
+2023-07-25 22:50:24,341:ERROR: 1049 - SQLSTATE value: 42000 - Error Message: Unknown database 'database1'
+2023-07-25 22:50:24,341:Attempting to create database Database1
+2023-07-25 22:50:24,347:Successfully created database: Database1
+2023-07-25 22:50:24,361:Successfully created table: Contractors
+2023-07-25 22:52:22,312:Successfully connected to database: Database1
+2023-07-25 22:52:45,292:Successfully connected to database: Database1
+2023-07-25 23:03:13,158:Successfully connected to database: Database1
+2023-07-25 23:03:24,705:Successfully connected to database: Database1
+2023-07-25 23:04:12,661:Successfully deleted entry from: Contractors - INFO: ('﻿test1', 'Electrician', 'test1@gmail.com', '1268000001', 0)
+2023-07-25 23:04:22,276:Successfully deleted entry from: Contractors - INFO: ('test21', 'Tiler', 'test21@gmail.com', '1268000021', 0)
+2023-07-25 23:04:34,244:Successfully connected to database: Database1
+2023-07-25 23:10:13,431:Successfully connected to database: Database1
+2023-07-25 23:11:06,457:Successfully connected to database: Database1
+2023-07-25 23:11:51,862:Successfully connected to database: Database1
+2023-07-25 23:12:38,903:Successfully connected to database: Database1
+2023-07-25 23:13:19,692:Successfully connected to database: Database1
+2023-07-25 23:14:04,674:ERROR: 1049 - SQLSTATE value: 42000 - Error Message: Unknown database 'database1'
+2023-07-25 23:14:04,674:Attempting to create database Database1
+2023-07-25 23:14:04,681:Successfully created database: Database1
+2023-07-25 23:14:04,699:Successfully created table: Contractors
+2023-07-25 23:14:28,189:Successfully connected to database: Database1
+2023-07-25 23:15:02,136:Successfully connected to database: Database1
+2023-07-25 23:15:21,862:Successfully connected to database: Database1
+2023-07-25 23:15:55,272:Successfully connected to database: Database1
+2023-07-25 23:17:49,605:Successfully connected to database: Database1
+2023-07-25 23:18:49,447:Successfully connected to database: Database1
+2023-07-25 23:19:30,142:Successfully connected to database: Database1
+2023-07-25 23:23:46,312:Successfully connected to database: Database1
+2023-07-25 23:24:47,513:Successfully connected to database: Database1
+2023-07-25 23:25:10,104:Successfully connected to database: Database1
+2023-07-25 23:25:37,108:Successfully connected to database: Database1
+2023-07-25 23:27:50,172:Successfully connected to database: Database1
+2023-07-25 23:29:51,128:Successfully connected to database: Database1
+2023-07-25 23:33:40,378:ERROR: 1049 - SQLSTATE value: 42000 - Error Message: Unknown database 'database1'
+2023-07-25 23:33:40,378:Attempting to create database Database1
+2023-07-25 23:33:40,384:Successfully created database: Database1
+2023-07-25 23:33:40,398:Successfully created table: Contractors
+2023-07-25 23:33:48,902:Successfully connected to database: Database1
+2023-07-25 23:36:37,752:ERROR: 1049 - SQLSTATE value: 42000 - Error Message: Unknown database 'database1'
+2023-07-25 23:36:37,752:Attempting to create database Database1
+2023-07-25 23:36:37,758:Successfully created database: Database1
+2023-07-25 23:36:37,772:Successfully created table: Contractors
+2023-07-25 23:36:49,852:Successfully connected to database: Database1
+2023-07-25 23:37:49,555:ERROR: 1049 - SQLSTATE value: 42000 - Error Message: Unknown database 'database1'
+2023-07-25 23:37:49,555:Attempting to create database Database1
+2023-07-25 23:37:49,560:Successfully created database: Database1
+2023-07-25 23:37:49,576:Successfully created table: Contractors
+2023-07-25 23:41:00,898:Successfully connected to database: Database1
