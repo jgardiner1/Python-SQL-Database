@@ -1,5 +1,0 @@
-localhost
-PerryDBTest
-4MR&551hG2
-Database1
-Contractors
