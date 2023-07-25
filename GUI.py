@@ -17,6 +17,7 @@ class App(ctk.CTk):
         self.GLOBAL_RESULTS = []
         self.MAX_PAGES = 0
         self.CURRENT_PAGE = 1
+        self.RESULTS_PER_PAGE = 50
 
         # Setting window appearances
         ctk.set_appearance_mode("dark")
@@ -29,10 +30,12 @@ class App(ctk.CTk):
 
         # Logic for adding new data into the database
         def button_event_add():
+            # ensures service is selected when inputting new entry
             if serviceEntry.get() == "Select Service":
                 messagebox.showerror('ERROR', 'Please make sure the service type field is filled in.')
                 return
-
+            
+            # try/catch for entering new data
             try:
                 cursor.execute(f"INSERT INTO {TABLE_NAME} (name, service, email, contactNumber, responded) VALUES (%s,%s,%s,%s,%s)", (f"{nameEntry.get()}", f"{serviceEntry.get()}", f"{emailEntry.get()}", f"{contactEntry.get()}", f"{respondedCheckBox.get()}"))
                 db.commit()
@@ -40,6 +43,7 @@ class App(ctk.CTk):
             except mysql.connector.Error as e:
                 logging.debug('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
             
+            # resetting all fields
             nameEntry.delete(0, 50)
             serviceEntry.set("None")
             emailEntry.delete(0, 50)
@@ -48,13 +52,15 @@ class App(ctk.CTk):
 
 
         def button_event_search():
-            #alphabeticalCheck.deselect()
+            self.CURRENT_PAGE = 1
+            # base query. Selects everything
             query = f"SELECT * FROM {TABLE_NAME}"
             conditions = []
 
             service = serviceSearch.get()
             name = nameSearch.get()
 
+            # If checks to construct SQL query to execute
             if service != "None" and service != "Search by Service":
                 conditions.append(f"service='{service}'")
 
@@ -74,26 +80,38 @@ class App(ctk.CTk):
             if alphabeticalCheck.get() == 1:
                 query += f" ORDER BY name"
             
+            # Execute query and store results
             cursor.execute(query)
             results = cursor.fetchall()
-            self.MAX_PAGES = (len(results) // 20)
-            if len(results) % 20 != 0:
-                self.MAX_PAGES += 1
-            self.GLOBAL_RESULTS = [results[x:x+20] for x in range(0, len(results), 20)]
-            clear_frame()
-            load_results(self.GLOBAL_RESULTS[0])
+
+            # Calculate max pages and configure page 1
+            if len(results) % self.RESULTS_PER_PAGE != 0:
+                self.MAX_PAGES = (len(results) // self.RESULTS_PER_PAGE) + 1
+            else:
+                self.MAX_PAGES = (len(results) // self.RESULTS_PER_PAGE)
+            currentPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
+            
+            # Split results into array of lists for each page
+            self.GLOBAL_RESULTS = [results[x:x+self.RESULTS_PER_PAGE] for x in range(0, len(results), self.RESULTS_PER_PAGE)]
+
+            # Clear frame and load Page 1
+            if len(self.GLOBAL_RESULTS) != 0:
+                clear_frame()
+                load_results(self.GLOBAL_RESULTS[0])
         
 
         def button_event_delete(id, x):
+            # Selects individual from database, deletes and logs
             cursor.execute(f"SELECT * FROM {TABLE_NAME} WHERE personID={id}")
             person = cursor.fetchone()
             cursor.execute(f"DELETE FROM {TABLE_NAME} WHERE personID={id}")
             db.commit()
             logging.debug('{}'.format(f"Successfully deleted entry from: {TABLE_NAME} - INFO: {person[0], person[1], person[2], person[3], person[4]}"))
-            self.GLOBAL_RESULTS.pop(x)
-            currentResults = self.GLOBAL_RESULTS
+
+            # Removes individual from global list and reloads frame
+            self.GLOBAL_RESULTS[self.CURRENT_PAGE - 1].pop(x)
             clear_frame()
-            load_results(currentResults)
+            load_results(self.GLOBAL_RESULTS[self.CURRENT_PAGE - 1])
             return
 
 
@@ -124,8 +142,8 @@ class App(ctk.CTk):
         
         def button_event_page_down():
             if self.CURRENT_PAGE > 1:
-                currentPage.configure(text=self.CURRENT_PAGE - 1)
                 self.CURRENT_PAGE -= 1
+                currentPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
                 clear_frame()
                 load_results(self.GLOBAL_RESULTS[self.CURRENT_PAGE - 1])
             return
@@ -133,8 +151,8 @@ class App(ctk.CTk):
 
         def button_event_page_up():
             if self.CURRENT_PAGE < self.MAX_PAGES:
-                currentPage.configure(text=self.CURRENT_PAGE + 1)
                 self.CURRENT_PAGE += 1
+                currentPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
                 clear_frame()
                 load_results(self.GLOBAL_RESULTS[self.CURRENT_PAGE - 1])
             return
@@ -156,7 +174,7 @@ class App(ctk.CTk):
                 ctk.CTkButton(master=resultFrame, text="Open Email", width=80, command=partial(button_event_email_open, results[x][2])).grid(row=x, column=6, padx=2, pady=5, sticky=ctk.E)
 
 
-        # RESULTS FRAME
+        ## RESULTS FRAME
         frameRight = ctk.CTkFrame(master=self)
         frameRight.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True, side=ctk.RIGHT)
 
@@ -169,12 +187,12 @@ class App(ctk.CTk):
         frameRightChild2 = ctk.CTkFrame(master=frameRight)
         frameRightChild2.pack(padx=10, pady=10, fill=None, expand=False, anchor=ctk.S)
         ctk.CTkButton(master=frameRightChild2, text="<", command=button_event_page_down).pack(padx=10, pady=10, side=ctk.LEFT)
-        currentPage = ctk.CTkLabel(master=frameRightChild2, text=self.CURRENT_PAGE)
+        currentPage = ctk.CTkLabel(master=frameRightChild2, text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
         currentPage.pack(padx=10, pady=10, side=ctk.LEFT)
         ctk.CTkButton(master=frameRightChild2, text=">", command=button_event_page_up).pack(padx=10, pady=10, side=ctk.LEFT)
 
 
-        # NEW ENTRIES FRAME
+        ## NEW ENTRIES FRAME
         frameUpperLeft = ctk.CTkFrame(master=self)
         frameUpperLeft.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
 
@@ -201,7 +219,7 @@ class App(ctk.CTk):
         ctk.CTkButton(master=frameUpperLeft, text="ADD", command=button_event_add).pack(side="bottom", pady=10, padx=20)
 
 
-        # SEARCH FRAME
+        ## SEARCH FRAME
         searchFrame = ctk.CTkFrame(master=self)
         searchFrame.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
 
@@ -216,16 +234,16 @@ class App(ctk.CTk):
         nameSearch.pack(pady=5, padx=20)
 
         respondedSearch = ctk.CTkCheckBox(master=searchFrame, text="Filter by Responded")
-        respondedSearch.pack(pady=5, padx=20)
+        respondedSearch.pack(pady=5, padx=10)
 
         alphabeticalCheck = ctk.CTkCheckBox(master=searchFrame, text="Order Alphabetically")
-        alphabeticalCheck.pack(padx=5, pady=20)
+        alphabeticalCheck.pack(padx=5, pady=10)
 
         # Search Button
         ctk.CTkButton(master=searchFrame, text="SEARCH", command=button_event_search).pack(pady=10, padx=20, side=ctk.BOTTOM)
 
 
-        # SERVICES FRAME
+        ## SERVICES FRAME
         servicesFrame = ctk.CTkFrame(master=self)
         servicesFrame.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
 
@@ -312,10 +330,12 @@ while (db == None):
 
 cursor = db.cursor(buffered=True)
 
-myFile = open('Contractors2.csv', 'r')
-reader = csv.reader(myFile)
-for record in reader:
-    cursor.execute(f"INSERT INTO {TABLE_NAME} (name, service, email, contactNumber, responded) VALUES (%s,%s,%s,%s,%s)", (f"{record[0]}", f"{record[1]}", f"{record[2]}", f"{record[3]}", f"0"))
+#myFile = open('testData.csv', 'r')
+#reader = csv.reader(myFile)
+#for record in reader:
+#    cursor.execute(f"INSERT INTO {TABLE_NAME} (name, service, email, contactNumber, responded) VALUES (%s,%s,%s,%s,%s)", (f"{record[0]}", f"{record[1]}", f"{record[2]}", f"{record[3]}", f"0"))
+#    db.commit()
+
 
 
 app = App()

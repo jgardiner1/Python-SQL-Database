@@ -29,7 +29,7 @@ cursor = db.cursor(buffered=True)
 #for x in cursor:
 #    print(x)
 
+cursor.execute("DROP TABLE Contractors")
 cursor.execute("DROP DATABASE Database1")
-#cursor.execute("DROP TABLE Contractors")
 
 db.commit()
