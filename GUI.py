@@ -12,7 +12,7 @@ class App(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.geometry("1250x720")
-        self.title("Perry Gardiner Database")
+        self.title(APP_NAME)
 
         self.GLOBAL_RESULTS = []
         self.MAX_PAGES = 0
@@ -333,6 +333,7 @@ USER = data[1]
 PASSWD = data[2]
 DATABASE = data[3]
 TABLE_NAME = data[4]
+APP_NAME = data[5]
 
 # Reading available services
 
