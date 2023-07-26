@@ -17,7 +17,7 @@ class App(ctk.CTk):
         self.GLOBAL_RESULTS = []
         self.MAX_PAGES = 0
         self.CURRENT_PAGE = 1
-        self.RESULTS_PER_PAGE = 50
+        self.RESULTS_PER_PAGE = 25
 
         # Setting window appearances
         ctk.set_appearance_mode("dark")
@@ -25,7 +25,7 @@ class App(ctk.CTk):
 
         # Clears result frame when update is needed
         def clear_frame():
-            for widget in frameRightChild.winfo_children():
+            for widget in frameRightResults.winfo_children():
                 widget.destroy()
 
         # Logic for adding new data into the database
@@ -95,9 +95,12 @@ class App(ctk.CTk):
             self.GLOBAL_RESULTS = [results[x:x+self.RESULTS_PER_PAGE] for x in range(0, len(results), self.RESULTS_PER_PAGE)]
 
             # Clear frame and load Page 1
-            if len(self.GLOBAL_RESULTS) != 0:
+            if len(self.GLOBAL_RESULTS) == 0:
                 clear_frame()
-                load_results(self.GLOBAL_RESULTS[0])
+                return
+            
+            clear_frame()
+            load_results(self.GLOBAL_RESULTS[0])
         
 
         def button_event_delete(id, x):
@@ -156,11 +159,15 @@ class App(ctk.CTk):
                 clear_frame()
                 load_results(self.GLOBAL_RESULTS[self.CURRENT_PAGE - 1])
             return
+        
+        def slider_event(value):
+            self.RESULTS_PER_PAGE = int(value)
+            resultsShow.configure(text=int(value))
 
 
         def load_results(results):
             for x in range(len(results)):
-                resultFrame = ctk.CTkFrame(master=frameRightChild)
+                resultFrame = ctk.CTkFrame(master=frameRightResults)
                 resultFrame.pack(padx=5, pady=3, anchor=ctk.W, fill=ctk.BOTH, expand=True)
 
                 # Results
@@ -181,15 +188,26 @@ class App(ctk.CTk):
         # Title
         ctk.CTkLabel(master=frameRight, text="RESULTS", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=10)
 
-        frameRightChild = ctk.CTkScrollableFrame(master=frameRight)
-        frameRightChild.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True, anchor=ctk.S)
+        frameRightResults = ctk.CTkScrollableFrame(master=frameRight)
+        frameRightResults.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True, anchor=ctk.S)
 
-        frameRightChild2 = ctk.CTkFrame(master=frameRight)
-        frameRightChild2.pack(padx=10, pady=10, fill=None, expand=False, anchor=ctk.S)
-        ctk.CTkButton(master=frameRightChild2, text="<", command=button_event_page_down).pack(padx=10, pady=10, side=ctk.LEFT)
-        currentPage = ctk.CTkLabel(master=frameRightChild2, text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
+        resultTogglesFrame = ctk.CTkFrame(master=frameRight)
+        resultTogglesFrame.pack(padx=10, pady=10, fill=None, expand=False)
+        pageSelectionFrame = ctk.CTkFrame(master=resultTogglesFrame)
+        pageSelectionFrame.pack(padx=10, pady=10, fill=None, expand=False, side=ctk.LEFT)
+        ctk.CTkButton(master=pageSelectionFrame, text="<", command=button_event_page_down).pack(padx=10, pady=10, side=ctk.LEFT)
+        currentPage = ctk.CTkLabel(master=pageSelectionFrame, text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
         currentPage.pack(padx=10, pady=10, side=ctk.LEFT)
-        ctk.CTkButton(master=frameRightChild2, text=">", command=button_event_page_up).pack(padx=10, pady=10, side=ctk.LEFT)
+        ctk.CTkButton(master=pageSelectionFrame, text=">", command=button_event_page_up).pack(padx=10, pady=10, side=ctk.LEFT)
+
+        frameRightChild3 = ctk.CTkFrame(master=resultTogglesFrame)
+        frameRightChild3.pack(padx=10, pady=10, fill=None, expand=False, side=ctk.LEFT)
+
+        resultsShow = ctk.CTkLabel(master=frameRightChild3, text=self.RESULTS_PER_PAGE)
+        resultsShow.pack()
+        resultsSlider = ctk.CTkSlider(master=frameRightChild3, from_=10, to=50, number_of_steps=40, command=slider_event)
+        resultsSlider.pack(padx=10, pady=10)
+        resultsSlider.set(self.RESULTS_PER_PAGE)
 
 
         ## NEW ENTRIES FRAME
