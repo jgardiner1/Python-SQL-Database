@@ -17,7 +17,7 @@ class App(ctk.CTk):
         self.GLOBAL_RESULTS = []
         self.MAX_PAGES = 0
         self.CURRENT_PAGE = 1
-        self.RESULTS_PER_PAGE = 25
+        self.RESULTS_PER_PAGE = 30
 
         # Setting window appearances
         ctk.set_appearance_mode("dark")
@@ -160,9 +160,9 @@ class App(ctk.CTk):
                 load_results(self.GLOBAL_RESULTS[self.CURRENT_PAGE - 1])
             return
         
-        def slider_event(value):
-            self.RESULTS_PER_PAGE = int(value)
-            resultsShow.configure(text=int(value))
+        #def slider_event(value):
+        #    self.RESULTS_PER_PAGE = int(value)
+        #    resultsShow.configure(text=int(value))
 
 
         def load_results(results):
@@ -200,14 +200,14 @@ class App(ctk.CTk):
         currentPage.pack(padx=10, pady=10, side=ctk.LEFT)
         ctk.CTkButton(master=pageSelectionFrame, text=">", command=button_event_page_up).pack(padx=10, pady=10, side=ctk.LEFT)
 
-        frameRightChild3 = ctk.CTkFrame(master=resultTogglesFrame)
-        frameRightChild3.pack(padx=10, pady=10, fill=None, expand=False, side=ctk.LEFT)
+        #frameRightChild3 = ctk.CTkFrame(master=resultTogglesFrame)
+        #frameRightChild3.pack(padx=10, pady=10, fill=None, expand=False, side=ctk.LEFT)
 
-        resultsShow = ctk.CTkLabel(master=frameRightChild3, text=self.RESULTS_PER_PAGE)
-        resultsShow.pack()
-        resultsSlider = ctk.CTkSlider(master=frameRightChild3, from_=10, to=50, number_of_steps=40, command=slider_event)
-        resultsSlider.pack(padx=10, pady=10)
-        resultsSlider.set(self.RESULTS_PER_PAGE)
+        #resultsShow = ctk.CTkLabel(master=frameRightChild3, text=self.RESULTS_PER_PAGE)
+        #resultsShow.pack()
+        #resultsSlider = ctk.CTkSlider(master=frameRightChild3, from_=10, to=50, number_of_steps=40, command=slider_event)
+        #resultsSlider.pack(padx=10, pady=10)
+        #resultsSlider.set(self.RESULTS_PER_PAGE)
 
 
         ## NEW ENTRIES FRAME
