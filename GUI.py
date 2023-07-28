@@ -6,6 +6,7 @@ from functools import partial
 import os
 import logging
 import csv
+from time import sleep
 
 
 class App(ctk.CTk):
@@ -122,8 +123,8 @@ class App(ctk.CTk):
             outlook = win32com.client.Dispatch('Outlook.Application')
             email = outlook.CreateItem(0)
             email.To = emailAddress
+            email.Subject = "Test"
             email.Display(True)
-            return
 
 
         def button_event_reload_services():
@@ -318,7 +319,6 @@ def create_database():
         logging.debug('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
 
 
-
 logging.basicConfig(filename='Logs.log', level=logging.DEBUG, format='%(asctime)s:%(message)s')
 
 ## MAIN CODE
@@ -356,6 +356,17 @@ cursor = db.cursor(buffered=True)
 #    db.commit()
 
 
+try:
+    logging.debug('{}'.format(f"Attempting to open Outlook Application"))
+    os.startfile('outlook')
+    logging.debug('{}'.format(f"Successfully opened Outlook Application"))
+    os.close
+except FileNotFoundError as e:
+    logging.debug('{}'.format(f"ERROR: {e.errno} - {e}"))
+except PermissionError as e:
+    logging.debug('{}'.format(f"ERROR: {e.errno} - {e}"))
 
 app = App()
 app.mainloop()
+
+os.system('taskkill /F /IM outlook.exe')
