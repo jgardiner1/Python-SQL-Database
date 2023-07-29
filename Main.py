@@ -6,19 +6,20 @@ from functools import partial
 import os
 import logging
 import csv
-from time import sleep
+import subprocess
+import json
 
 
 class App(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.geometry("1250x720")
+        self.geometry("1366x768")
         self.title(APP_NAME)
 
         self.GLOBAL_RESULTS = []
         self.MAX_PAGES = 0
         self.CURRENT_PAGE = 1
-        self.RESULTS_PER_PAGE = 30
+        self.RESULTS_PER_PAGE = MAX_RESULTS_PPAGE
 
         # Setting window appearances
         ctk.set_appearance_mode("dark")
@@ -123,8 +124,18 @@ class App(ctk.CTk):
             outlook = win32com.client.Dispatch('Outlook.Application')
             email = outlook.CreateItem(0)
             email.To = emailAddress
-            email.Subject = "Test"
             email.Display(True)
+
+        
+        def button_event_add_service():
+            service = addServiceEntry.get()
+            if service in services:
+                print("Service already within list. Not added")
+            else:
+                file = open('services.txt', 'a')
+                file.write(f"\n{service}")
+                file.close()
+                button_event_reload_services()
 
 
         def button_event_reload_services():
@@ -160,10 +171,6 @@ class App(ctk.CTk):
                 clear_frame()
                 load_results(self.GLOBAL_RESULTS[self.CURRENT_PAGE - 1])
             return
-        
-        #def slider_event(value):
-        #    self.RESULTS_PER_PAGE = int(value)
-        #    resultsShow.configure(text=int(value))
 
 
         def load_results(results):
@@ -187,7 +194,7 @@ class App(ctk.CTk):
         frameRight.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True, side=ctk.RIGHT)
 
         # Title
-        ctk.CTkLabel(master=frameRight, text="RESULTS", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=10)
+        ctk.CTkLabel(master=frameRight, text="RESULTS", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
 
         frameRightResults = ctk.CTkScrollableFrame(master=frameRight)
         frameRightResults.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True, anchor=ctk.S)
@@ -201,22 +208,13 @@ class App(ctk.CTk):
         currentPage.pack(padx=10, pady=10, side=ctk.LEFT)
         ctk.CTkButton(master=pageSelectionFrame, text=">", command=button_event_page_up).pack(padx=10, pady=10, side=ctk.LEFT)
 
-        #frameRightChild3 = ctk.CTkFrame(master=resultTogglesFrame)
-        #frameRightChild3.pack(padx=10, pady=10, fill=None, expand=False, side=ctk.LEFT)
-
-        #resultsShow = ctk.CTkLabel(master=frameRightChild3, text=self.RESULTS_PER_PAGE)
-        #resultsShow.pack()
-        #resultsSlider = ctk.CTkSlider(master=frameRightChild3, from_=10, to=50, number_of_steps=40, command=slider_event)
-        #resultsSlider.pack(padx=10, pady=10)
-        #resultsSlider.set(self.RESULTS_PER_PAGE)
-
 
         ## NEW ENTRIES FRAME
         frameUpperLeft = ctk.CTkFrame(master=self)
         frameUpperLeft.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
 
         # Title
-        ctk.CTkLabel(master=frameUpperLeft, text="NEW ENTRIES", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=10)
+        ctk.CTkLabel(master=frameUpperLeft, text="NEW ENTRIES", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
 
         nameEntry = ctk.CTkEntry(master=frameUpperLeft, placeholder_text="Name", width=200)
         nameEntry.pack(pady=5, padx=20)
@@ -243,7 +241,7 @@ class App(ctk.CTk):
         searchFrame.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
 
         # Title
-        ctk.CTkLabel(master=searchFrame, text="SEARCH", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=10)
+        ctk.CTkLabel(master=searchFrame, text="SEARCH", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
 
         serviceSearch = ctk.CTkOptionMenu(master=searchFrame, values=services, width=200)
         serviceSearch.set("Search by Service")
@@ -267,11 +265,19 @@ class App(ctk.CTk):
         servicesFrame.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
 
         # Title
-        ctk.CTkLabel(master=servicesFrame, text="SERVICES LIST", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=10)
+        ctk.CTkLabel(master=servicesFrame, text="EDIT SERVICES", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
 
+        addServiceFrame = ctk.CTkFrame(master=servicesFrame)
+        addServiceFrame.pack(padx=5, pady=5, fill=ctk.BOTH, expand=True)
+        addServiceEntry = ctk.CTkEntry(master=addServiceFrame, placeholder_text="New Service")
+        addServiceEntry.pack(padx=5, pady=5, side=ctk.LEFT)
+        ctk.CTkButton(master=addServiceFrame, text="ADD", command=button_event_add_service).pack(padx=5, pady=5, side=ctk.LEFT)
+        
         # Reload and Edit services button
-        ctk.CTkButton(master=servicesFrame, text="RELOAD SERVICES LIST", command=button_event_reload_services).pack(pady=5, padx=20, side=ctk.BOTTOM)
-        ctk.CTkButton(master=servicesFrame, text="EDIT SERVICES LIST", command=button_event_edit_services).pack(pady=5, padx=20, side=ctk.BOTTOM)
+        editServiceFrame = ctk.CTkFrame(master=servicesFrame)
+        editServiceFrame.pack(padx=5, pady=5, fill=ctk.Y, expand=True)
+        ctk.CTkButton(master=editServiceFrame, text="EDIT SERVICES", command=button_event_edit_services).pack(padx=5, pady=5, side=ctk.LEFT)
+        ctk.CTkButton(master=editServiceFrame, text="RELOAD SERVICES", command=button_event_reload_services).pack(padx=5, pady=5, side=ctk.LEFT)
 
 
 def connect_database():
@@ -289,6 +295,7 @@ def connect_database():
             logging.debug('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
             logging.debug('{}'.format(f"Attempting to create database {DATABASE}"))
             return create_database()
+
 
 def create_database():
     try:
@@ -319,21 +326,49 @@ def create_database():
         logging.debug('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
 
 
-logging.basicConfig(filename='Logs.log', level=logging.DEBUG, format='%(asctime)s:%(message)s')
+def read_test_data():
+    logging.debug('{}'.format(f"Attempting to read {js['TEST_DATA']}"))
+    try:
+        counter = 0
+        for record in open(js['TEST_DATA'], 'r'):
+            cursor.execute(f"INSERT INTO {TABLE_NAME} (name, service, email, contactNumber, responded) VALUES (%s,%s,%s,%s,%s)", (f"{record[0]}", f"{record[1]}", f"{record[2]}", f"{record[3]}", f"0"))
+            db.commit()
+            counter += 1
+        logging.debug('{}'.format(f"Successfully read {counter} files into {TABLE_NAME}"))
+    except FileNotFoundError as e:
+        logging.debug('{}'.format(f"ERROR: {e.errno} - MESSAGE: {e.strerror}"))
+    except mysql.connector.Error as e:
+        logging.debug('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
+
+
+def open_outlook():
+    try:
+        logging.debug('{}'.format(f"Attempting to open Outlook Application"))
+        os.startfile(OUTLOOK_LOC)
+        logging.debug('{}'.format(f"Successfully opened Outlook Application"))
+        os.close
+    except FileNotFoundError as e:
+        logging.debug('{}'.format(f"ERROR: {e.errno} - {e}"))
+    except PermissionError as e:
+        logging.debug('{}'.format(f"ERROR: {e.errno} - {e}"))
 
 ## MAIN CODE
-# Reading available services
+logging.basicConfig(filename='Logs.log', level=logging.DEBUG, format='%(asctime)s:%(message)s')
+
+# Reading user configuration
 with open('information.txt') as f:
-    data = f.read().splitlines()
-    f.close()
+    data = f.read()
+    js = json.loads(data)
 
 # Constants
-HOST = data[0]
-USER = data[1]
-PASSWD = data[2]
-DATABASE = data[3]
-TABLE_NAME = data[4]
-APP_NAME = data[5]
+HOST = js["HOST"]
+USER = js["USER"]
+PASSWD = js["PASSWD"]
+DATABASE = js["DATABASE"]
+TABLE_NAME = js["TABLE_NAME"]
+APP_NAME = js["APP_NAME"]
+OUTLOOK_LOC = js["OUTLOOK_LOC"]
+MAX_RESULTS_PPAGE = js["MAX_RESULTS_PPAGE"]
 
 # Reading available services
 
@@ -349,23 +384,10 @@ while (db == None):
 
 cursor = db.cursor(buffered=True)
 
-#myFile = open('testData.csv', 'r')
-#reader = csv.reader(myFile)
-#for record in reader:
-#    cursor.execute(f"INSERT INTO {TABLE_NAME} (name, service, email, contactNumber, responded) VALUES (%s,%s,%s,%s,%s)", (f"{record[0]}", f"{record[1]}", f"{record[2]}", f"{record[3]}", f"0"))
-#    db.commit()
+if js["READ_TEST_DATA"] == "True":
+    read_test_data()
 
-
-try:
-    logging.debug('{}'.format(f"Attempting to open Outlook Application"))
-    os.startfile('outlook')
-    logging.debug('{}'.format(f"Successfully opened Outlook Application"))
-    os.close
-except FileNotFoundError as e:
-    logging.debug('{}'.format(f"ERROR: {e.errno} - {e}"))
-except PermissionError as e:
-    logging.debug('{}'.format(f"ERROR: {e.errno} - {e}"))
-
+open_outlook()
 app = App()
 app.mainloop()
 
