@@ -26,7 +26,7 @@ class App(ctk.CTk):
 
         # Clears result frame when update is needed
         def clear_frame():
-            for widget in frameRightResults.winfo_children():
+            for widget in frameResults.winfo_children():
                 widget.destroy()
 
         # Logic for adding new data into the database
@@ -141,8 +141,6 @@ class App(ctk.CTk):
                 addServiceEntry.delete(0, 50)
 
 
-
-
         def button_event_reload_services():
             # Reading available services
             with open('services.txt') as f:
@@ -180,7 +178,7 @@ class App(ctk.CTk):
 
         def load_results(results):
             for x in range(len(results)):
-                resultFrame = ctk.CTkFrame(master=frameRightResults)
+                resultFrame = ctk.CTkFrame(master=frameResults)
                 resultFrame.pack(padx=5, pady=3, anchor=ctk.W, fill=ctk.BOTH, expand=True)
 
                 # Results
@@ -201,88 +199,91 @@ class App(ctk.CTk):
         # Title
         ctk.CTkLabel(master=frameRight, text="RESULTS", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
 
-        frameRightResults = ctk.CTkScrollableFrame(master=frameRight)
-        frameRightResults.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True, anchor=ctk.S)
+        # Frame holds results, page selection and other frames
+        frameResults = ctk.CTkScrollableFrame(master=frameRight)
+        frameResults.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True, anchor=ctk.S)
 
-        resultTogglesFrame = ctk.CTkFrame(master=frameRight)
-        resultTogglesFrame.pack(padx=10, pady=10, fill=None, expand=False)
-        pageSelectionFrame = ctk.CTkFrame(master=resultTogglesFrame)
-        pageSelectionFrame.pack(padx=10, pady=10, fill=None, expand=False, side=ctk.LEFT)
-        ctk.CTkButton(master=pageSelectionFrame, text="<", command=button_event_page_down).pack(padx=10, pady=10, side=ctk.LEFT)
-        currentPage = ctk.CTkLabel(master=pageSelectionFrame, text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
+        # Frame for under main results frame. Stores page selection and results per page
+        frameBottomRight = ctk.CTkFrame(master=frameRight, fg_color="gray13")
+        frameBottomRight.pack(padx=5, pady=5, fill=ctk.X, expand=False)
+        # Page Selection frame to store buttons and current page info
+        framePageSelection = ctk.CTkFrame(master=frameBottomRight)
+        framePageSelection.pack(padx=10, pady=10, fill=None, expand=True, side=ctk.LEFT, anchor=ctk.CENTER)
+        ctk.CTkButton(master=framePageSelection, text="<", command=button_event_page_down).pack(padx=10, pady=10, side=ctk.LEFT)
+        currentPage = ctk.CTkLabel(master=framePageSelection, text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
         currentPage.pack(padx=10, pady=10, side=ctk.LEFT)
-        ctk.CTkButton(master=pageSelectionFrame, text=">", command=button_event_page_up).pack(padx=10, pady=10, side=ctk.LEFT)
+        ctk.CTkButton(master=framePageSelection, text=">", command=button_event_page_up).pack(padx=10, pady=10, side=ctk.LEFT)
 
 
         ## NEW ENTRIES FRAME
-        frameUpperLeft = ctk.CTkFrame(master=self)
-        frameUpperLeft.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
+        frameTopLeft = ctk.CTkFrame(master=self)
+        frameTopLeft.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
 
         # Title
-        ctk.CTkLabel(master=frameUpperLeft, text="NEW ENTRIES", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
+        ctk.CTkLabel(master=frameTopLeft, text="NEW ENTRIES", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
 
-        nameEntry = ctk.CTkEntry(master=frameUpperLeft, placeholder_text="Name", width=200)
+        nameEntry = ctk.CTkEntry(master=frameTopLeft, placeholder_text="Name", width=200)
         nameEntry.pack(pady=5, padx=20)
 
-        serviceEntry = ctk.CTkOptionMenu(master=frameUpperLeft, values=services, width=200)
+        serviceEntry = ctk.CTkOptionMenu(master=frameTopLeft, values=services, width=200)
         serviceEntry.set("Select Service")
         serviceEntry.pack(pady=5, padx=20)
 
-        emailEntry = ctk.CTkEntry(master=frameUpperLeft, placeholder_text="Email", width=200)
+        emailEntry = ctk.CTkEntry(master=frameTopLeft, placeholder_text="Email", width=200)
         emailEntry.pack(pady=5, padx=20)
 
-        contactEntry = ctk.CTkEntry(master=frameUpperLeft, placeholder_text="Contact Number", width=200)
+        contactEntry = ctk.CTkEntry(master=frameTopLeft, placeholder_text="Contact Number", width=200)
         contactEntry.pack(pady=5, padx=20)
 
-        respondedCheckBox = ctk.CTkCheckBox(master=frameUpperLeft, text="Responded?")
+        respondedCheckBox = ctk.CTkCheckBox(master=frameTopLeft, text="Responded?")
         respondedCheckBox.pack(pady=5, padx=20)
 
         # Add Button
-        ctk.CTkButton(master=frameUpperLeft, text="ADD", command=button_event_add).pack(side="bottom", pady=10, padx=20)
+        ctk.CTkButton(master=frameTopLeft, text="ADD", command=button_event_add).pack(side="bottom", pady=10, padx=20)
 
 
         ## SEARCH FRAME
-        searchFrame = ctk.CTkFrame(master=self)
-        searchFrame.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
+        frameMiddleLeft = ctk.CTkFrame(master=self)
+        frameMiddleLeft.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
 
         # Title
-        ctk.CTkLabel(master=searchFrame, text="SEARCH", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
+        ctk.CTkLabel(master=frameMiddleLeft, text="SEARCH", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
 
-        serviceSearch = ctk.CTkOptionMenu(master=searchFrame, values=services, width=200)
+        serviceSearch = ctk.CTkOptionMenu(master=frameMiddleLeft, values=services, width=200)
         serviceSearch.set("Search by Service")
         serviceSearch.pack(pady=5, padx=20)
 
-        nameSearch = ctk.CTkEntry(master=searchFrame, placeholder_text="Search by Name", width=200)
+        nameSearch = ctk.CTkEntry(master=frameMiddleLeft, placeholder_text="Search by Name", width=200)
         nameSearch.pack(pady=5, padx=20)
 
-        respondedSearch = ctk.CTkCheckBox(master=searchFrame, text="Filter by Responded")
+        respondedSearch = ctk.CTkCheckBox(master=frameMiddleLeft, text="Filter by Responded")
         respondedSearch.pack(pady=5, padx=10)
 
-        alphabeticalCheck = ctk.CTkCheckBox(master=searchFrame, text="Order Alphabetically")
+        alphabeticalCheck = ctk.CTkCheckBox(master=frameMiddleLeft, text="Order Alphabetically")
         alphabeticalCheck.pack(padx=5, pady=10)
 
         # Search Button
-        ctk.CTkButton(master=searchFrame, text="SEARCH", command=button_event_search).pack(pady=10, padx=20, side=ctk.BOTTOM)
+        ctk.CTkButton(master=frameMiddleLeft, text="SEARCH", command=button_event_search).pack(pady=10, padx=20, side=ctk.BOTTOM)
 
 
         ## SERVICES FRAME
-        servicesFrame = ctk.CTkFrame(master=self)
-        servicesFrame.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
+        frameBottomLeft = ctk.CTkFrame(master=self)
+        frameBottomLeft.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
 
         # Title
-        ctk.CTkLabel(master=servicesFrame, text="EDIT SERVICES", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
+        ctk.CTkLabel(master=frameBottomLeft, text="EDIT SERVICES", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
 
-        addServiceFrame = ctk.CTkFrame(master=servicesFrame)
+        addServiceFrame = ctk.CTkFrame(master=frameBottomLeft, fg_color="gray13")
         addServiceFrame.pack(padx=5, pady=5, fill=ctk.BOTH, expand=True)
         addServiceEntry = ctk.CTkEntry(master=addServiceFrame, placeholder_text="New Service")
         addServiceEntry.pack(padx=5, pady=5, side=ctk.LEFT)
         ctk.CTkButton(master=addServiceFrame, text="ADD", command=button_event_add_service).pack(padx=5, pady=5, side=ctk.LEFT)
         
         # Reload and Edit services button
-        editServiceFrame = ctk.CTkFrame(master=servicesFrame)
+        editServiceFrame = ctk.CTkFrame(master=frameBottomLeft, fg_color="gray13")
         editServiceFrame.pack(padx=5, pady=5, fill=ctk.Y, expand=True)
-        ctk.CTkButton(master=editServiceFrame, text="EDIT SERVICES", command=button_event_edit_services).pack(padx=5, pady=5, side=ctk.LEFT)
-        ctk.CTkButton(master=editServiceFrame, text="RELOAD SERVICES", command=button_event_reload_services).pack(padx=5, pady=5, side=ctk.LEFT)
+        ctk.CTkButton(master=editServiceFrame, text="RELOAD SERVICES", command=button_event_reload_services).pack(padx=5, pady=5, side=ctk.BOTTOM)
+        ctk.CTkButton(master=editServiceFrame, text="EDIT SERVICES", command=button_event_edit_services).pack(padx=5, pady=5, side=ctk.BOTTOM)
 
 
 def connect_database():
@@ -399,8 +400,8 @@ cursor = db.cursor(buffered=True)
 if js["READ_TEST_DATA"] == "True":
     read_test_data()
 
-open_outlook()
+#open_outlook()
 app = App()
 app.mainloop()
 
-os.system('taskkill /F /IM outlook.exe')
+#os.system('taskkill /F /IM outlook.exe')

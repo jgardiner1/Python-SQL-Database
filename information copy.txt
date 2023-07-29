@@ -1,0 +1,11 @@
+{
+    "HOST": "host",
+    "USER": "user",
+    "PASSWD": "password",
+    "DATABASE": "database",
+    "TABLE_NAME": "table",
+    "APP_NAME": "My App",
+    "OUTLOOK_LOC": "location",
+    "MAX_RESULTS_PPAGE": 30,
+    "READ_TEST_DATA": "False",
+    "TEST_DATA": "testData.csv"}
