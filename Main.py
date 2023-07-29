@@ -8,13 +8,13 @@ import logging
 import csv
 import json
 
+## TODO
 
 class App(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.geometry("1366x768")
         self.title(APP_NAME)
-
         self.GLOBAL_RESULTS = []
         self.MAX_PAGES = 0
         self.CURRENT_PAGE = 1
@@ -128,6 +128,7 @@ class App(ctk.CTk):
         
         def button_event_add_service():
             service = addServiceEntry.get()
+            services = button_event_reload_services()
             if service in services:
                 messagebox.showerror('ERROR', 'Service already within list')
                 addServiceEntry.delete(0, 50)
@@ -135,8 +136,11 @@ class App(ctk.CTk):
                 file = open('services.txt', 'a')
                 file.write(f"\n{service}")
                 file.close()
+
+                services = button_event_reload_services()
                 addServiceEntry.delete(0, 50)
-                button_event_reload_services()
+
+
 
 
         def button_event_reload_services():
@@ -148,7 +152,7 @@ class App(ctk.CTk):
             
             serviceEntry.configure(values=services)
             serviceSearch.configure(values=services)
-            return
+            return services
         
         
         def button_event_edit_services():
@@ -330,11 +334,16 @@ def create_database():
 def read_test_data():
     logging.debug('{}'.format(f"Attempting to read {js['TEST_DATA']}"))
     try:
+        file = open(js['TEST_DATA'], 'r')
+        reader = csv.reader(file)
         counter = 0
-        for record in open(js['TEST_DATA'], 'r'):
+        file.close()
+
+        for record in reader:
             cursor.execute(f"INSERT INTO {TABLE_NAME} (name, service, email, contactNumber, responded) VALUES (%s,%s,%s,%s,%s)", (f"{record[0]}", f"{record[1]}", f"{record[2]}", f"{record[3]}", f"0"))
             db.commit()
             counter += 1
+
         logging.debug('{}'.format(f"Successfully read {counter} files into {TABLE_NAME}"))
     except FileNotFoundError as e:
         logging.debug('{}'.format(f"ERROR: {e.errno} - MESSAGE: {e.strerror}"))
@@ -360,6 +369,7 @@ logging.basicConfig(filename='Logs.log', level=logging.DEBUG, format='%(asctime)
 with open('information.txt') as f:
     data = f.read()
     js = json.loads(data)
+    f.close()
 
 # Constants
 HOST = js["HOST"]
@@ -372,11 +382,12 @@ OUTLOOK_LOC = js["OUTLOOK_LOC"]
 MAX_RESULTS_PPAGE = js["MAX_RESULTS_PPAGE"]
 
 # Reading available services
-
+services = []
 with open('services.txt') as f:
     services = [l for l in (line.strip() for line in f) if l]
     services.insert(0, "None")
     f.close()
+
 
 db = None
 while (db == None):
