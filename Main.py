@@ -6,7 +6,6 @@ from functools import partial
 import os
 import logging
 import csv
-import subprocess
 import json
 
 
@@ -130,18 +129,20 @@ class App(ctk.CTk):
         def button_event_add_service():
             service = addServiceEntry.get()
             if service in services:
-                print("Service already within list. Not added")
+                messagebox.showerror('ERROR', 'Service already within list')
+                addServiceEntry.delete(0, 50)
             else:
                 file = open('services.txt', 'a')
                 file.write(f"\n{service}")
                 file.close()
+                addServiceEntry.delete(0, 50)
                 button_event_reload_services()
 
 
         def button_event_reload_services():
             # Reading available services
             with open('services.txt') as f:
-                services = f.read().splitlines()
+                services = [l for l in (line.strip() for line in f) if l]
                 services.insert(0, "None")
                 f.close()
             
@@ -373,7 +374,7 @@ MAX_RESULTS_PPAGE = js["MAX_RESULTS_PPAGE"]
 # Reading available services
 
 with open('services.txt') as f:
-    services = f.read().splitlines()
+    services = [l for l in (line.strip() for line in f) if l]
     services.insert(0, "None")
     f.close()
 
