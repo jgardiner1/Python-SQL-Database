@@ -215,6 +215,30 @@ class App(ctk.CTk):
         ctk.CTkButton(master=framePageSelection, text=">", command=button_event_page_up).pack(padx=10, pady=10, side=ctk.LEFT)
 
 
+        ## SEARCH FRAME
+        frameMiddleLeft = ctk.CTkFrame(master=self)
+        frameMiddleLeft.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
+
+        # Title
+        ctk.CTkLabel(master=frameMiddleLeft, text="SEARCH", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
+
+        serviceSearch = ctk.CTkOptionMenu(master=frameMiddleLeft, values=services, width=200)
+        serviceSearch.set("Search by Service")
+        serviceSearch.pack(pady=5, padx=20)
+
+        nameSearch = ctk.CTkEntry(master=frameMiddleLeft, placeholder_text="Search by Name", width=200)
+        nameSearch.pack(pady=5, padx=20)
+
+        respondedSearch = ctk.CTkCheckBox(master=frameMiddleLeft, text="Filter by Responded")
+        respondedSearch.pack(pady=5, padx=10)
+
+        alphabeticalCheck = ctk.CTkCheckBox(master=frameMiddleLeft, text="Order Alphabetically")
+        alphabeticalCheck.pack(padx=5, pady=10)
+
+        # Search Button
+        ctk.CTkButton(master=frameMiddleLeft, text="SEARCH", command=button_event_search).pack(pady=10, padx=20, side=ctk.BOTTOM)
+
+
         ## NEW ENTRIES FRAME
         frameTopLeft = ctk.CTkFrame(master=self)
         frameTopLeft.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
@@ -240,30 +264,6 @@ class App(ctk.CTk):
 
         # Add Button
         ctk.CTkButton(master=frameTopLeft, text="ADD", command=button_event_add).pack(side="bottom", pady=10, padx=20)
-
-
-        ## SEARCH FRAME
-        frameMiddleLeft = ctk.CTkFrame(master=self)
-        frameMiddleLeft.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
-
-        # Title
-        ctk.CTkLabel(master=frameMiddleLeft, text="SEARCH", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
-
-        serviceSearch = ctk.CTkOptionMenu(master=frameMiddleLeft, values=services, width=200)
-        serviceSearch.set("Search by Service")
-        serviceSearch.pack(pady=5, padx=20)
-
-        nameSearch = ctk.CTkEntry(master=frameMiddleLeft, placeholder_text="Search by Name", width=200)
-        nameSearch.pack(pady=5, padx=20)
-
-        respondedSearch = ctk.CTkCheckBox(master=frameMiddleLeft, text="Filter by Responded")
-        respondedSearch.pack(pady=5, padx=10)
-
-        alphabeticalCheck = ctk.CTkCheckBox(master=frameMiddleLeft, text="Order Alphabetically")
-        alphabeticalCheck.pack(padx=5, pady=10)
-
-        # Search Button
-        ctk.CTkButton(master=frameMiddleLeft, text="SEARCH", command=button_event_search).pack(pady=10, padx=20, side=ctk.BOTTOM)
 
 
         ## SERVICES FRAME
@@ -400,8 +400,10 @@ cursor = db.cursor(buffered=True)
 if js["READ_TEST_DATA"] == "True":
     read_test_data()
 
-#open_outlook()
+if js["OPEN_OUTLOOK"] == "True":
+    open_outlook()
+
 app = App()
 app.mainloop()
 
-#os.system('taskkill /F /IM outlook.exe')
+os.system('taskkill /F /IM outlook.exe')
