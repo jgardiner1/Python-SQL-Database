@@ -8,4 +8,5 @@
     "OUTLOOK_LOC": "location",
     "MAX_RESULTS_PPAGE": 30,
     "READ_TEST_DATA": "False",
-    "TEST_DATA": "testData.csv"}
+    "TEST_DATA": "testData.csv",
+    "OPEN_OUTLOOK": "False"}
