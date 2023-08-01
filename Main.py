@@ -7,8 +7,10 @@ import os
 import logging
 import csv
 import json
+import time
 
 ## TODO
+# Finish implementing checkbox deletion of results to streamline process
 
 class App(ctk.CTk):
     def __init__(self, *args, **kwargs):
@@ -16,6 +18,7 @@ class App(ctk.CTk):
         self.geometry("1366x768")
         self.title(APP_NAME)
         self.GLOBAL_RESULTS = []
+        self.REMOVAL_LIST = {}
         self.MAX_PAGES = 0
         self.CURRENT_PAGE = 1
         self.RESULTS_PER_PAGE = MAX_RESULTS_PPAGE
@@ -26,8 +29,13 @@ class App(ctk.CTk):
 
         # Clears result frame when update is needed
         def clear_frame():
+            print("\nClearing frame")
+            start = time.perf_counter()
             for widget in frameResults.winfo_children():
                 widget.destroy()
+
+            end=time.perf_counter()
+            print("Time to clear frame: ", end-start)
 
         # Logic for adding new data into the database
         def button_event_add():
@@ -85,6 +93,11 @@ class App(ctk.CTk):
             cursor.execute(query)
             results = cursor.fetchall()
 
+            # Clear frame and load Page 1. Incase new query yields no results
+            if len(results) == 0:
+                clear_frame()
+                return
+            
             # Calculate max pages and configure page 1
             if len(results) % self.RESULTS_PER_PAGE != 0:
                 self.MAX_PAGES = (len(results) // self.RESULTS_PER_PAGE) + 1
@@ -94,29 +107,34 @@ class App(ctk.CTk):
             
             # Split results into array of lists for each page
             self.GLOBAL_RESULTS = [results[x:x+self.RESULTS_PER_PAGE] for x in range(0, len(results), self.RESULTS_PER_PAGE)]
-
-            # Clear frame and load Page 1
-            if len(self.GLOBAL_RESULTS) == 0:
-                clear_frame()
-                return
             
             clear_frame()
-            load_results(self.GLOBAL_RESULTS[0])
+            load_results(0)
         
 
-        def button_event_delete(id, x):
+        def button_event_delete():
+            print(f"deleting: {self.REMOVAL_LIST}")
             # Selects individual from database, deletes and logs
-            cursor.execute(f"SELECT * FROM {TABLE_NAME} WHERE personID={id}")
-            person = cursor.fetchone()
-            cursor.execute(f"DELETE FROM {TABLE_NAME} WHERE personID={id}")
-            db.commit()
-            logging.debug('{}'.format(f"Successfully deleted entry from: {TABLE_NAME} - INFO: {person[0], person[1], person[2], person[3], person[4]}"))
+            #cursor.execute(f"SELECT * FROM {TABLE_NAME} WHERE personID={id}")
+            #person = cursor.fetchone()
+            #cursor.execute(f"DELETE FROM {TABLE_NAME} WHERE personID={id}")
+            #db.commit()
+            #logging.debug('{}'.format(f"Successfully deleted entry from: {TABLE_NAME} - INFO: {person[0], person[1], person[2], person[3], person[4]}"))
 
             # Removes individual from global list and reloads frame
-            self.GLOBAL_RESULTS[self.CURRENT_PAGE - 1].pop(x)
-            clear_frame()
-            load_results(self.GLOBAL_RESULTS[self.CURRENT_PAGE - 1])
+            #self.GLOBAL_RESULTS[self.CURRENT_PAGE - 1].pop(x)
+            #clear_frame()
+            #load_results(self.GLOBAL_RESULTS[self.CURRENT_PAGE - 1])
             return
+
+
+        def checkbox_event_entry_selection(id, entryPos):
+            if self.REMOVAL_LIST.get(id) == None:
+                self.REMOVAL_LIST[id] = entryPos
+                print("added")
+            else:
+                self.REMOVAL_LIST.pop(id)
+                print("removed")
 
 
         def button_event_email_open(emailAddress):
@@ -163,7 +181,7 @@ class App(ctk.CTk):
                 self.CURRENT_PAGE -= 1
                 currentPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
                 clear_frame()
-                load_results(self.GLOBAL_RESULTS[self.CURRENT_PAGE - 1])
+                load_results(self.CURRENT_PAGE - 1)
             return
         
 
@@ -172,24 +190,29 @@ class App(ctk.CTk):
                 self.CURRENT_PAGE += 1
                 currentPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
                 clear_frame()
-                load_results(self.GLOBAL_RESULTS[self.CURRENT_PAGE - 1])
+                load_results(self.CURRENT_PAGE - 1)
             return
 
 
-        def load_results(results):
-            for x in range(len(results)):
+        def load_results(pageNum):
+            print("Loading. Starting counter")
+            start = time.perf_counter()
+            for x in range(len(self.GLOBAL_RESULTS[pageNum])):
                 resultFrame = ctk.CTkFrame(master=frameResults)
                 resultFrame.pack(padx=5, pady=3, anchor=ctk.W, fill=ctk.BOTH, expand=True)
 
                 # Results
-                ctk.CTkLabel(master=resultFrame, corner_radius=0, text=results[x][0], width=150).grid(row=x, column=1, padx=10, pady=5)
-                ctk.CTkLabel(master=resultFrame, corner_radius=0, text=results[x][1], width=150).grid(row=x, column=2, padx=10, pady=5)
-                ctk.CTkLabel(master=resultFrame, corner_radius=0, text=results[x][2], width=200).grid(row=x, column=3, padx=10, pady=5)
-                ctk.CTkLabel(master=resultFrame, corner_radius=0, text=results[x][3], width=150).grid(row=x, column=4, padx=10, pady=5)
+                ctk.CTkCheckBox(master=resultFrame, text=None, width=0, command=partial(checkbox_event_entry_selection, self.GLOBAL_RESULTS[pageNum][x][5], x)).grid(row=x, column=1, padx=10, pady=5)
+                ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][0], width=150).grid(row=x, column=2, padx=10, pady=5)
+                ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][1], width=150).grid(row=x, column=3, padx=10, pady=5)
+                ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][2], width=200).grid(row=x, column=4, padx=10, pady=5)
+                ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][3], width=150).grid(row=x, column=5, padx=10, pady=5)
 
                 # Delete and Open Email Buttons
-                ctk.CTkButton(master=resultFrame, text="Delete", width=70, command=partial(button_event_delete, results[x][5], x)).grid(row=x, column=5, padx=2, pady=5, sticky=ctk.E)
-                ctk.CTkButton(master=resultFrame, text="Open Email", width=80, command=partial(button_event_email_open, results[x][2])).grid(row=x, column=6, padx=2, pady=5, sticky=ctk.E)
+                #ctk.CTkButton(master=resultFrame, text="Delete", width=70, command=partial(button_event_delete, self.GLOBAL_RESULTS[pageNum][x][5], x)).grid(row=x, column=5, padx=2, pady=5, sticky=ctk.E)
+                ctk.CTkButton(master=resultFrame, text="Open Email", width=80, command=partial(button_event_email_open, self.GLOBAL_RESULTS[pageNum][x][2])).grid(row=x, column=6, padx=2, pady=5, sticky=ctk.E)
+            end = time.perf_counter()
+            print("Time to load Results: ", end-start)
 
 
         ## RESULTS FRAME
@@ -206,6 +229,9 @@ class App(ctk.CTk):
         # Frame for under main results frame. Stores page selection and results per page
         frameBottomRight = ctk.CTkFrame(master=frameRight, fg_color="gray13")
         frameBottomRight.pack(padx=5, pady=5, fill=ctk.X, expand=False)
+
+        ctk.CTkButton(master=frameBottomRight, text="DELETE SELECTED RESULTS", command=button_event_delete).pack(padx=10, pady=10, side=ctk.LEFT)
+
         # Page Selection frame to store buttons and current page info
         framePageSelection = ctk.CTkFrame(master=frameBottomRight)
         framePageSelection.pack(padx=10, pady=10, fill=None, expand=True, side=ctk.LEFT, anchor=ctk.CENTER)
