@@ -11,8 +11,9 @@ import time
 from PIL import Image
 
 ## TODO
-# Finish implementing checkbox deletion of results to streamline process
-# implementing by repeating search query after attempting to delete and recollecting results instead of ammending current
+# implement select all entries on page
+# play around with background colours of frames
+# reset scrollbar when navigating pages or performing another query
 
 class App(ctk.CTk):
     def __init__(self, *args, **kwargs):
@@ -50,7 +51,7 @@ class App(ctk.CTk):
                 self.MAX_PAGES = (len(results) // self.RESULTS_PER_PAGE) + 1
             else:
                 self.MAX_PAGES = (len(results) // self.RESULTS_PER_PAGE)
-            currentPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
+            curPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
             
             # Split results into array of lists for each page
             self.GLOBAL_RESULTS = [results[x:x+self.RESULTS_PER_PAGE] for x in range(0, len(results), self.RESULTS_PER_PAGE)]
@@ -68,9 +69,9 @@ class App(ctk.CTk):
             
             # try/catch for entering new data
             try:
-                cursor.execute(f"INSERT INTO {TABLE_NAME} (name, service, email, contactNumber, responded) VALUES (%s,%s,%s,%s,%s)", (f"{nameEntry.get()}", f"{serviceEntry.get()}", f"{emailEntry.get()}", f"{contactEntry.get()}", f"{respondedCheckBox.get()}"))
+                cursor.execute(f"INSERT INTO {TABLE_NAME} (name, service, email, contactNumber, responded) VALUES (%s,%s,%s,%s,%s)", (f"{nameEntry.get()}", f"{serviceEntry.get()}", f"{emailEntry.get()}", f"{contactEntry.get()}", f"{respondedEntry.get()}"))
                 db.commit()
-                logging.debug('{}'.format(f"Successfully insert into: {TABLE_NAME} - INFO: {nameEntry.get()}, {serviceEntry.get()}, {emailEntry.get()}, {contactEntry.get()}, {respondedCheckBox.get()}"))
+                logging.debug('{}'.format(f"Successfully insert into: {TABLE_NAME} - INFO: {nameEntry.get()}, {serviceEntry.get()}, {emailEntry.get()}, {contactEntry.get()}, {respondedEntry.get()}"))
             except mysql.connector.Error as e:
                 logging.debug('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
             
@@ -79,7 +80,7 @@ class App(ctk.CTk):
             serviceEntry.set("None")
             emailEntry.delete(0, 50)
             contactEntry.delete(0, 50)
-            respondedCheckBox.deselect()
+            respondedEntry.deselect()
 
 
         def button_event_search():
@@ -108,7 +109,7 @@ class App(ctk.CTk):
                 for c in range(1, len(conditions)):
                     query += f" AND {conditions[c]}"
             
-            if alphabeticalCheck.get() == 1:
+            if alphabeticalSearch.get() == 1:
                 query += f" ORDER BY name"
             
             # Execute query and store results
@@ -127,7 +128,7 @@ class App(ctk.CTk):
                 self.MAX_PAGES = (len(results) // self.RESULTS_PER_PAGE) + 1
             else:
                 self.MAX_PAGES = (len(results) // self.RESULTS_PER_PAGE)
-            currentPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
+            curPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
             
             # Split results into array of lists for each page
             self.GLOBAL_RESULTS = [results[x:x+self.RESULTS_PER_PAGE] for x in range(0, len(results), self.RESULTS_PER_PAGE)]
@@ -202,7 +203,7 @@ class App(ctk.CTk):
         def button_event_page_down():
             if self.CURRENT_PAGE > 1:
                 self.CURRENT_PAGE -= 1
-                currentPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
+                curPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
                 clear_frame()
                 load_results(self.CURRENT_PAGE - 1)
             return
@@ -211,7 +212,7 @@ class App(ctk.CTk):
         def button_event_page_up():
             if self.CURRENT_PAGE < self.MAX_PAGES:
                 self.CURRENT_PAGE += 1
-                currentPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
+                curPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
                 clear_frame()
                 load_results(self.CURRENT_PAGE - 1)
             return
@@ -244,102 +245,106 @@ class App(ctk.CTk):
 
 
         ## RESULTS FRAME
-        frameRight = ctk.CTkFrame(master=self)
-        frameRight.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True, side=ctk.RIGHT)
+        rightFr = ctk.CTkFrame(master=self)
+        rightFr.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True, side=ctk.RIGHT)
 
         # Title
-        ctk.CTkLabel(master=frameRight, text="RESULTS", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
+        ctk.CTkLabel(master=rightFr, text="RESULTS", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
 
         # Frame holds results
-        frameResults = ctk.CTkScrollableFrame(master=frameRight)
+        frameResults = ctk.CTkScrollableFrame(master=rightFr)
         frameResults.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
 
-        print(frameResults.winfo_height())
-
         # Frame for under main results frame. Stores page selection and results per page
-        frameBottomRight = ctk.CTkFrame(master=frameRight, fg_color="gray13")
-        frameBottomRight.pack(padx=5, pady=5, fill=ctk.X, expand=False)
+        rightBottomFr = ctk.CTkFrame(master=rightFr, fg_color="gray13")
+        rightBottomFr.pack(padx=10, pady=10, fill=ctk.X, expand=True, side=ctk.LEFT)
 
-        ctk.CTkButton(master=frameBottomRight, text="DELETE SELECTED RESULTS", command=button_event_delete).pack(padx=10, pady=10, side=ctk.LEFT)
+        pageNavFr = ctk.CTkFrame(master=rightFr)
+        pageNavFr.pack(padx=10, pady=10, fill=ctk.X, expand=True, side=ctk.LEFT)
+
+        rightBottomFr3 = ctk.CTkFrame(master=rightFr, height=20)
+        rightBottomFr3.pack(padx=10, pady=10, fill=ctk.X, expand=True, side=ctk.LEFT)
+
+        ctk.CTkButton(master=rightBottomFr, text="DELETE SELECTED RESULTS", command=button_event_delete).pack(padx=10, pady=10, side=ctk.LEFT)
 
         # Page Selection frame to store buttons and current page info
-        framePageSelection = ctk.CTkFrame(master=frameBottomRight)
-        framePageSelection.pack(padx=10, pady=10, fill=None, expand=True, side=ctk.LEFT, anchor=ctk.CENTER)
-        ctk.CTkButton(master=framePageSelection, text="<", command=button_event_page_down).pack(padx=10, pady=10, side=ctk.LEFT)
-        currentPage = ctk.CTkLabel(master=framePageSelection, text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
-        currentPage.pack(padx=10, pady=10, side=ctk.LEFT)
-        ctk.CTkButton(master=framePageSelection, text=">", command=button_event_page_up).pack(padx=10, pady=10, side=ctk.LEFT)
+        pageSelectFr = ctk.CTkFrame(master=pageNavFr)
+        pageSelectFr.pack(padx=10, pady=10, fill=None, expand=True, side=ctk.LEFT, anchor=ctk.CENTER)
+        ctk.CTkButton(master=pageSelectFr, text="<", command=button_event_page_down).pack(padx=10, pady=10, side=ctk.LEFT)
+        curPage = ctk.CTkLabel(master=pageSelectFr, text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
+        curPage.pack(padx=10, pady=10, side=ctk.LEFT)
+        ctk.CTkButton(master=pageSelectFr, text=">", command=button_event_page_up).pack(padx=10, pady=10, side=ctk.LEFT)
 
 
         ## SEARCH FRAME
-        frameMiddleLeft = ctk.CTkFrame(master=self)
-        frameMiddleLeft.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
+        middleLeftFr = ctk.CTkFrame(master=self)
+        middleLeftFr.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
 
         # Title
-        ctk.CTkLabel(master=frameMiddleLeft, text="SEARCH", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
+        ctk.CTkLabel(master=middleLeftFr, text="SEARCH", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
 
-        serviceSearch = ctk.CTkOptionMenu(master=frameMiddleLeft, values=services, width=200)
+        serviceSearch = ctk.CTkOptionMenu(master=middleLeftFr, values=services, width=200)
         serviceSearch.set("Search by Service")
         serviceSearch.pack(pady=5, padx=20)
 
-        nameSearch = ctk.CTkEntry(master=frameMiddleLeft, placeholder_text="Search by Name", width=200)
+        nameSearch = ctk.CTkEntry(master=middleLeftFr, placeholder_text="Search by Name", width=200)
         nameSearch.pack(pady=5, padx=20)
 
-        respondedSearch = ctk.CTkCheckBox(master=frameMiddleLeft, text="Filter by Responded")
+        respondedSearch = ctk.CTkCheckBox(master=middleLeftFr, text="Filter by Responded")
         respondedSearch.pack(pady=5, padx=10)
 
-        alphabeticalCheck = ctk.CTkCheckBox(master=frameMiddleLeft, text="Order Alphabetically")
-        alphabeticalCheck.pack(padx=5, pady=10)
+        alphabeticalSearch = ctk.CTkCheckBox(master=middleLeftFr, text="Order Alphabetically")
+        alphabeticalSearch.pack(padx=5, pady=10)
 
         # Search Button
-        ctk.CTkButton(master=frameMiddleLeft, text="SEARCH", command=button_event_search).pack(pady=10, padx=20, side=ctk.BOTTOM)
+        ctk.CTkButton(master=middleLeftFr, text="SEARCH", command=button_event_search).pack(pady=10, padx=20, side=ctk.BOTTOM)
 
 
         ## NEW ENTRIES FRAME
-        frameTopLeft = ctk.CTkFrame(master=self)
-        frameTopLeft.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
+        topLeftFr = ctk.CTkFrame(master=self)
+        topLeftFr.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
 
         # Title
-        ctk.CTkLabel(master=frameTopLeft, text="NEW ENTRIES", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
+        ctk.CTkLabel(master=topLeftFr, text="NEW ENTRIES", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
 
-        nameEntry = ctk.CTkEntry(master=frameTopLeft, placeholder_text="Name", width=200)
+        nameEntry = ctk.CTkEntry(master=topLeftFr, placeholder_text="Name", width=200)
         nameEntry.pack(pady=5, padx=20)
 
-        serviceEntry = ctk.CTkOptionMenu(master=frameTopLeft, values=services, width=200)
+        serviceEntry = ctk.CTkOptionMenu(master=topLeftFr, values=services, width=200)
         serviceEntry.set("Select Service")
         serviceEntry.pack(pady=5, padx=20)
 
-        emailEntry = ctk.CTkEntry(master=frameTopLeft, placeholder_text="Email", width=200)
+        emailEntry = ctk.CTkEntry(master=topLeftFr, placeholder_text="Email", width=200)
         emailEntry.pack(pady=5, padx=20)
 
-        contactEntry = ctk.CTkEntry(master=frameTopLeft, placeholder_text="Contact Number", width=200)
+        contactEntry = ctk.CTkEntry(master=topLeftFr, placeholder_text="Contact Number", width=200)
         contactEntry.pack(pady=5, padx=20)
 
-        respondedCheckBox = ctk.CTkCheckBox(master=frameTopLeft, text="Responded?")
-        respondedCheckBox.pack(pady=5, padx=20)
+        respondedEntry = ctk.CTkCheckBox(master=topLeftFr, text="Responded?")
+        respondedEntry.pack(pady=5, padx=20)
 
         # Add Button
-        ctk.CTkButton(master=frameTopLeft, text="ADD", command=button_event_add).pack(side="bottom", pady=10, padx=20)
+        ctk.CTkButton(master=topLeftFr, text="ADD", command=button_event_add).pack(side="bottom", pady=10, padx=20)
 
 
         ## SERVICES FRAME
-        frameBottomLeft = ctk.CTkFrame(master=self)
-        frameBottomLeft.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
+        bottomLeftFr = ctk.CTkFrame(master=self)
+        bottomLeftFr.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
 
         # Title
-        ctk.CTkLabel(master=frameBottomLeft, text="EDIT SERVICES", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
+        ctk.CTkLabel(master=bottomLeftFr, text="EDIT SERVICES", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
 
-        addServiceFrame = ctk.CTkFrame(master=frameBottomLeft, fg_color="gray13")
-        addServiceFrame.pack(padx=5, pady=5, fill=ctk.BOTH, expand=True)
-        addServiceEntry = ctk.CTkEntry(master=addServiceFrame, placeholder_text="New Service")
+        addServiceFr = ctk.CTkFrame(master=bottomLeftFr, fg_color="gray13")
+        addServiceFr.pack(padx=5, pady=5, fill=ctk.BOTH, expand=True)
+        addServiceEntry = ctk.CTkEntry(master=addServiceFr, placeholder_text="New Service")
         addServiceEntry.pack(padx=5, pady=5, side=ctk.LEFT)
-        ctk.CTkButton(master=addServiceFrame, text="ADD", command=button_event_add_service).pack(padx=5, pady=5, side=ctk.LEFT)
+        ctk.CTkButton(master=addServiceFr, text="ADD", command=button_event_add_service).pack(padx=5, pady=5, side=ctk.LEFT)
         
         # Reload and Edit services button
-        editServiceFrame = ctk.CTkFrame(master=frameBottomLeft, fg_color="gray13")
-        editServiceFrame.pack(padx=5, pady=5, fill=ctk.Y, expand=True)
-        ctk.CTkButton(master=editServiceFrame, text="RELOAD SERVICES", command=button_event_reload_services).pack(padx=5, pady=5, side=ctk.BOTTOM)
-        ctk.CTkButton(master=editServiceFrame, text="EDIT SERVICES", command=button_event_edit_services).pack(padx=5, pady=5, side=ctk.BOTTOM)
+        editServiceFr = ctk.CTkFrame(master=bottomLeftFr, fg_color="gray13")
+        editServiceFr.pack(padx=5, pady=5, fill=ctk.Y, expand=True)
+        ctk.CTkButton(master=editServiceFr, text="RELOAD SERVICES", command=button_event_reload_services).pack(padx=5, pady=5, side=ctk.BOTTOM)
+        ctk.CTkButton(master=editServiceFr, text="EDIT SERVICES", command=button_event_edit_services).pack(padx=5, pady=5, side=ctk.BOTTOM)
 
 
 def connect_database():
