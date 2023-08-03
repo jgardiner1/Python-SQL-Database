@@ -1,3 +1,4 @@
+from typing import Optional, Tuple, Union
 import customtkinter as ctk
 from tkinter import messagebox
 import win32com.client
@@ -15,6 +16,36 @@ from PIL import Image
 # play around with background colours of frames
 # reset scrollbar when navigating pages or performing another query
 
+class ResultFrame(ctk.CTkFrame):
+    def __init__(self, master, pageNum, frameResults, **kwargs):
+        super().__init__(master, **kwargs)
+
+        for x in range(len(self.GLOBAL_RESULTS[pageNum])):
+            resultFrame = ctk.CTkFrame(master=frameResults)
+            resultFrame.pack(padx=5, pady=3, fill=ctk.BOTH, expand=True)
+
+            # Results
+            if self.GLOBAL_RESULTS[pageNum][x][5] in self.REMOVAL_LIST:
+                temp = ctk.CTkCheckBox(master=resultFrame, text=None, width=0, command=partial(checkbox_event_entry_selection, self.GLOBAL_RESULTS[pageNum][x][5]))
+                temp.grid(row=x, column=1, padx=10, pady=5)
+                temp.select()
+            else:
+                temp = ctk.CTkCheckBox(master=resultFrame, text=None, width=0, command=partial(checkbox_event_entry_selection, self.GLOBAL_RESULTS[pageNum][x][5]))
+                temp.grid(row=x, column=1, padx=10, pady=5)
+                self.CHECK_BOXES.append(temp)
+            
+            ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][0], width=150).grid(row=x, column=2, padx=10, pady=5)
+            ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][1], width=150).grid(row=x, column=3, padx=10, pady=5)
+            ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][2], width=200).grid(row=x, column=4, padx=10, pady=5)
+            ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][3], width=150).grid(row=x, column=5, padx=10, pady=5)
+
+            # Delete and Open Email Buttons
+            ctk.CTkButton(master=resultFrame, text="Open Email", width=80, command=partial(button_event_email_open, self.GLOBAL_RESULTS[pageNum][x][2])).grid(row=x, column=6, padx=2, pady=5, sticky=ctk.E)
+
+
+
+
+
 class App(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -26,6 +57,7 @@ class App(ctk.CTk):
         self.CURRENT_PAGE = 1
         self.RESULTS_PER_PAGE = MAX_RESULTS_PPAGE
         self.LAST_QUERY = ""
+        self.CHECK_BOXES = []
 
         # Setting window appearances
         ctk.set_appearance_mode("dark")
@@ -199,12 +231,19 @@ class App(ctk.CTk):
             os.system('services.txt')
             return
         
+
+        def checkbox_event_select_all():
+            for checkbox in self.CHECK_BOXES:
+                if checkbox.get() == 0:
+                    checkbox.toggle()
+
         
         def button_event_page_down():
             if self.CURRENT_PAGE > 1:
                 self.CURRENT_PAGE -= 1
                 curPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
                 clear_frame()
+                selectAllChk.deselect()
                 load_results(self.CURRENT_PAGE - 1)
             return
         
@@ -214,6 +253,7 @@ class App(ctk.CTk):
                 self.CURRENT_PAGE += 1
                 curPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
                 clear_frame()
+                selectAllChk.deselect()
                 load_results(self.CURRENT_PAGE - 1)
             return
 
@@ -221,25 +261,7 @@ class App(ctk.CTk):
         def load_results(pageNum):
             print("Loading. Starting counter")
             start = time.perf_counter()
-            for x in range(len(self.GLOBAL_RESULTS[pageNum])):
-                resultFrame = ctk.CTkFrame(master=frameResults)
-                resultFrame.pack(padx=5, pady=3, fill=ctk.BOTH, expand=True)
 
-                # Results
-                if self.GLOBAL_RESULTS[pageNum][x][5] in self.REMOVAL_LIST:
-                    temp = ctk.CTkCheckBox(master=resultFrame, text=None, width=0, command=partial(checkbox_event_entry_selection, self.GLOBAL_RESULTS[pageNum][x][5]))
-                    temp.grid(row=x, column=1, padx=10, pady=5)
-                    temp.select()
-                else:
-                    ctk.CTkCheckBox(master=resultFrame, text=None, width=0, command=partial(checkbox_event_entry_selection, self.GLOBAL_RESULTS[pageNum][x][5])).grid(row=x, column=1, padx=10, pady=5)
-                ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][0], width=150).grid(row=x, column=2, padx=10, pady=5)
-                ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][1], width=150).grid(row=x, column=3, padx=10, pady=5)
-                ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][2], width=200).grid(row=x, column=4, padx=10, pady=5)
-                ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][3], width=150).grid(row=x, column=5, padx=10, pady=5)
-
-                # Delete and Open Email Buttons
-                #ctk.CTkButton(master=resultFrame, text="Delete", width=70, command=partial(button_event_delete, self.GLOBAL_RESULTS[pageNum][x][5], x)).grid(row=x, column=5, padx=2, pady=5, sticky=ctk.E)
-                ctk.CTkButton(master=resultFrame, text="Open Email", width=80, command=partial(button_event_email_open, self.GLOBAL_RESULTS[pageNum][x][2])).grid(row=x, column=6, padx=2, pady=5, sticky=ctk.E)
             end = time.perf_counter()
             print("Time to load Results: ", end-start)
 
@@ -252,28 +274,33 @@ class App(ctk.CTk):
         ctk.CTkLabel(master=rightFr, text="RESULTS", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
 
         # Frame holds results
-        frameResults = ctk.CTkScrollableFrame(master=rightFr)
+        frameResults = ctk.CTkScrollableFrame(master=rightFr, orientation=("vertical", "horizontal"))
         frameResults.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
 
+        buttonsFr = ctk.CTkFrame(master=rightFr)
+        buttonsFr.pack(fill=ctk.X, expand=True, side=ctk.RIGHT, padx=10, pady=(0, 10))
+
+        # Frame for holding delete results checkBox and button
+        leftBottomFr = ctk.CTkFrame(master=buttonsFr, fg_color="gray16")
+        leftBottomFr.pack(pady=10, fill=ctk.X, expand=True, side=ctk.LEFT)
+
         # Frame for under main results frame. Stores page selection and results per page
-        rightBottomFr = ctk.CTkFrame(master=rightFr, fg_color="gray13")
-        rightBottomFr.pack(padx=10, pady=10, fill=ctk.X, expand=True, side=ctk.LEFT)
+        pageNavFr = ctk.CTkFrame(master=buttonsFr, fg_color="gray16")
+        pageNavFr.pack(pady=10, fill=ctk.X, expand=True, side=ctk.LEFT)
 
-        pageNavFr = ctk.CTkFrame(master=rightFr)
-        pageNavFr.pack(padx=10, pady=10, fill=ctk.X, expand=True, side=ctk.LEFT)
+        ctk.CTkFrame(master=buttonsFr, height=20, fg_color="gray16").pack(pady=10, fill=ctk.X, expand=True, side=ctk.LEFT)
 
-        rightBottomFr3 = ctk.CTkFrame(master=rightFr, height=20)
-        rightBottomFr3.pack(padx=10, pady=10, fill=ctk.X, expand=True, side=ctk.LEFT)
-
-        ctk.CTkButton(master=rightBottomFr, text="DELETE SELECTED RESULTS", command=button_event_delete).pack(padx=10, pady=10, side=ctk.LEFT)
+        selectAllChk = ctk.CTkCheckBox(master=leftBottomFr, text="SELECT ALL", command=checkbox_event_select_all)
+        selectAllChk.pack(padx=(20, 0), anchor=ctk.W)
+        ctk.CTkButton(master=leftBottomFr, text="DELETE SELECTED RESULTS", command=button_event_delete).pack(padx=(20, 0), pady=10, anchor=ctk.W)
 
         # Page Selection frame to store buttons and current page info
         pageSelectFr = ctk.CTkFrame(master=pageNavFr)
         pageSelectFr.pack(padx=10, pady=10, fill=None, expand=True, side=ctk.LEFT, anchor=ctk.CENTER)
-        ctk.CTkButton(master=pageSelectFr, text="<", command=button_event_page_down).pack(padx=10, pady=10, side=ctk.LEFT)
+        ctk.CTkButton(master=pageSelectFr, text="<", command=button_event_page_down, width=50).pack(padx=10, pady=10, side=ctk.LEFT)
         curPage = ctk.CTkLabel(master=pageSelectFr, text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
         curPage.pack(padx=10, pady=10, side=ctk.LEFT)
-        ctk.CTkButton(master=pageSelectFr, text=">", command=button_event_page_up).pack(padx=10, pady=10, side=ctk.LEFT)
+        ctk.CTkButton(master=pageSelectFr, text=">", command=button_event_page_up, width=50).pack(padx=10, pady=10, side=ctk.LEFT)
 
 
         ## SEARCH FRAME
