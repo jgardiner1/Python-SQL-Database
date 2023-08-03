@@ -12,44 +12,56 @@ import time
 from PIL import Image
 
 ## TODO
-# implement select all entries on page
-# play around with background colours of frames
+# implement deselect all and saving when moving across pages
 # reset scrollbar when navigating pages or performing another query
 
 class ResultFrame(ctk.CTkFrame):
-    def __init__(self, master, pageNum, frameResults, **kwargs):
+    def __init__(self, master, pageNum, **kwargs):
         super().__init__(master, **kwargs)
 
-        for x in range(len(self.GLOBAL_RESULTS[pageNum])):
-            resultFrame = ctk.CTkFrame(master=frameResults)
-            resultFrame.pack(padx=5, pady=3, fill=ctk.BOTH, expand=True)
+        def checkbox_event_entry_selection(id):
+            if id in app.REMOVAL_LIST:
+                app.REMOVAL_LIST.remove(id)
+                print("removed")
+            else:
+                app.REMOVAL_LIST.append(id)
+                print("added")
 
+
+        def button_event_email_open(emailAddress):
+            outlook = win32com.client.Dispatch('Outlook.Application')
+            email = outlook.CreateItem(0)
+            email.To = emailAddress
+            email.Display(True)
+
+
+        for x in range(len(app.GLOBAL_RESULTS[pageNum])):
+            result = ctk.CTkFrame(master=master)
+            result.pack(padx=5, pady=3, fill=ctk.BOTH, expand=True)
             # Results
-            if self.GLOBAL_RESULTS[pageNum][x][5] in self.REMOVAL_LIST:
-                temp = ctk.CTkCheckBox(master=resultFrame, text=None, width=0, command=partial(checkbox_event_entry_selection, self.GLOBAL_RESULTS[pageNum][x][5]))
+            if app.GLOBAL_RESULTS[pageNum][x][5] in app.REMOVAL_LIST:
+                temp = ctk.CTkCheckBox(master=result, text=None, width=0, command=partial(checkbox_event_entry_selection, app.GLOBAL_RESULTS[pageNum][x][5]))
                 temp.grid(row=x, column=1, padx=10, pady=5)
                 temp.select()
             else:
-                temp = ctk.CTkCheckBox(master=resultFrame, text=None, width=0, command=partial(checkbox_event_entry_selection, self.GLOBAL_RESULTS[pageNum][x][5]))
+                temp = ctk.CTkCheckBox(master=result, text=None, width=0, command=partial(checkbox_event_entry_selection, app.GLOBAL_RESULTS[pageNum][x][5]))
                 temp.grid(row=x, column=1, padx=10, pady=5)
-                self.CHECK_BOXES.append(temp)
+                app.CHECK_BOXES.append(temp)
             
-            ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][0], width=150).grid(row=x, column=2, padx=10, pady=5)
-            ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][1], width=150).grid(row=x, column=3, padx=10, pady=5)
-            ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][2], width=200).grid(row=x, column=4, padx=10, pady=5)
-            ctk.CTkLabel(master=resultFrame, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][3], width=150).grid(row=x, column=5, padx=10, pady=5)
+            ctk.CTkLabel(master=result, corner_radius=0, text=app.GLOBAL_RESULTS[pageNum][x][0], width=150).grid(row=x, column=2, padx=10, pady=5)
+            ctk.CTkLabel(master=result, corner_radius=0, text=app.GLOBAL_RESULTS[pageNum][x][1], width=150).grid(row=x, column=3, padx=10, pady=5)
+            ctk.CTkLabel(master=result, corner_radius=0, text=app.GLOBAL_RESULTS[pageNum][x][2], width=200).grid(row=x, column=4, padx=10, pady=5)
+            ctk.CTkLabel(master=result, corner_radius=0, text=app.GLOBAL_RESULTS[pageNum][x][3], width=150).grid(row=x, column=5, padx=10, pady=5)
 
-            # Delete and Open Email Buttons
-            ctk.CTkButton(master=resultFrame, text="Open Email", width=80, command=partial(button_event_email_open, self.GLOBAL_RESULTS[pageNum][x][2])).grid(row=x, column=6, padx=2, pady=5, sticky=ctk.E)
-
-
-
+            #Delete and Open Email Buttons
+            ctk.CTkButton(master=result, text="Open Email", width=80, command=partial(button_event_email_open, app.GLOBAL_RESULTS[pageNum][x][2])).grid(row=x, column=6, padx=2, pady=5, sticky=ctk.E)
 
 
 class App(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.geometry("1280x720")
+        self.maxsize(1280, 720)
         self.title(APP_NAME)
         self.GLOBAL_RESULTS = []
         self.REMOVAL_LIST = []
@@ -58,6 +70,7 @@ class App(ctk.CTk):
         self.RESULTS_PER_PAGE = MAX_RESULTS_PPAGE
         self.LAST_QUERY = ""
         self.CHECK_BOXES = []
+        self.temp = []
 
         # Setting window appearances
         ctk.set_appearance_mode("dark")
@@ -67,11 +80,11 @@ class App(ctk.CTk):
         def clear_frame():
             print("\nClearing frame")
             start = time.perf_counter()
-            for widget in frameResults.winfo_children():
+
+            for widget in resultsScroll.winfo_children():
                 widget.destroy()
 
-            end=time.perf_counter()
-            print("Time to clear frame: ", end-start)
+            print("Time to clear frame: ", time.perf_counter()-start)
         
 
         def repeat_search():
@@ -152,7 +165,7 @@ class App(ctk.CTk):
             # Incase new query yields no results
             if len(results) == 0:
                 clear_frame()
-                ctk.CTkLabel(master=frameResults, text="No Results...").pack()
+                ctk.CTkLabel(master=results, text="No Results...").pack()
                 return
             
             # Calculate max pages and configure page 1
@@ -165,7 +178,6 @@ class App(ctk.CTk):
             # Split results into array of lists for each page
             self.GLOBAL_RESULTS = [results[x:x+self.RESULTS_PER_PAGE] for x in range(0, len(results), self.RESULTS_PER_PAGE)]
             
-            clear_frame()
             load_results(0)
         
 
@@ -183,36 +195,19 @@ class App(ctk.CTk):
                 logging.debug('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
             return
 
-
-        def checkbox_event_entry_selection(id):
-            if id in self.REMOVAL_LIST:
-                self.REMOVAL_LIST.remove(id)
-                print("removed")
-            else:
-                self.REMOVAL_LIST.append(id)
-                print("added")
-
-
-        def button_event_email_open(emailAddress):
-            outlook = win32com.client.Dispatch('Outlook.Application')
-            email = outlook.CreateItem(0)
-            email.To = emailAddress
-            email.Display(True)
-
         
         def button_event_add_service():
-            service = addServiceEntry.get()
-            services = button_event_reload_services()
-            if service in services:
+
+            if addServiceEntry.get() in button_event_reload_services():
                 messagebox.showerror('ERROR', 'Service already within list')
-                addServiceEntry.delete(0, 50)
             else:
                 file = open('services.txt', 'a')
-                file.write(f"\n{service}")
+                file.write(f"\n{addServiceEntry.get()}")
                 file.close()
 
-                services = button_event_reload_services()
-                addServiceEntry.delete(0, 50)
+            button_event_reload_services()
+
+            addServiceEntry.delete(0, 50)
 
 
         def button_event_reload_services():
@@ -233,37 +228,45 @@ class App(ctk.CTk):
         
 
         def checkbox_event_select_all():
+            if len(self.CHECK_BOXES) == self.RESULTS_PER_PAGE:
+                for checkbox in self.CHECK_BOXES:
+                    checkbox.toggle()
+                return
+        
             for checkbox in self.CHECK_BOXES:
                 if checkbox.get() == 0:
                     checkbox.toggle()
+            
+            self.CHECK_BOXES.clear()
 
         
         def button_event_page_down():
             if self.CURRENT_PAGE > 1:
                 self.CURRENT_PAGE -= 1
                 curPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
-                clear_frame()
                 selectAllChk.deselect()
                 load_results(self.CURRENT_PAGE - 1)
             return
-        
+
 
         def button_event_page_up():
             if self.CURRENT_PAGE < self.MAX_PAGES:
                 self.CURRENT_PAGE += 1
                 curPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
-                clear_frame()
                 selectAllChk.deselect()
                 load_results(self.CURRENT_PAGE - 1)
             return
 
 
         def load_results(pageNum):
+            clear_frame()
+
             print("Loading. Starting counter")
             start = time.perf_counter()
 
-            end = time.perf_counter()
-            print("Time to load Results: ", end-start)
+            ResultFrame(resultsScroll, pageNum)
+
+            print("Time to load Results: ", time.perf_counter()-start)
 
 
         ## RESULTS FRAME
@@ -274,8 +277,8 @@ class App(ctk.CTk):
         ctk.CTkLabel(master=rightFr, text="RESULTS", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
 
         # Frame holds results
-        frameResults = ctk.CTkScrollableFrame(master=rightFr, orientation=("vertical", "horizontal"))
-        frameResults.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
+        resultsScroll = ctk.CTkScrollableFrame(master=rightFr)
+        resultsScroll.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
 
         buttonsFr = ctk.CTkFrame(master=rightFr)
         buttonsFr.pack(fill=ctk.X, expand=True, side=ctk.RIGHT, padx=10, pady=(0, 10))
@@ -305,7 +308,7 @@ class App(ctk.CTk):
 
         ## SEARCH FRAME
         middleLeftFr = ctk.CTkFrame(master=self)
-        middleLeftFr.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
+        middleLeftFr.pack(padx=10, pady=(10, 0), fill=ctk.BOTH, expand=True)
 
         # Title
         ctk.CTkLabel(master=middleLeftFr, text="SEARCH", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
@@ -329,7 +332,7 @@ class App(ctk.CTk):
 
         ## NEW ENTRIES FRAME
         topLeftFr = ctk.CTkFrame(master=self)
-        topLeftFr.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
+        topLeftFr.pack(padx=10, pady=(10, 0), fill=ctk.BOTH, expand=True)
 
         # Title
         ctk.CTkLabel(master=topLeftFr, text="NEW ENTRIES", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
@@ -356,20 +359,24 @@ class App(ctk.CTk):
 
         ## SERVICES FRAME
         bottomLeftFr = ctk.CTkFrame(master=self)
-        bottomLeftFr.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
+        bottomLeftFr.pack(padx=10, pady=(10, 10), fill=ctk.BOTH, expand=True)
 
         # Title
         ctk.CTkLabel(master=bottomLeftFr, text="EDIT SERVICES", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
 
         addServiceFr = ctk.CTkFrame(master=bottomLeftFr, fg_color="gray13")
         addServiceFr.pack(padx=5, pady=5, fill=ctk.BOTH, expand=True)
-        addServiceEntry = ctk.CTkEntry(master=addServiceFr, placeholder_text="New Service")
-        addServiceEntry.pack(padx=5, pady=5, side=ctk.LEFT)
-        ctk.CTkButton(master=addServiceFr, text="ADD", command=button_event_add_service).pack(padx=5, pady=5, side=ctk.LEFT)
+
+        childFr = ctk.CTkFrame(master=addServiceFr)
+        childFr.pack()
+
+        addServiceEntry = ctk.CTkEntry(master=childFr, placeholder_text="New Service")
+        addServiceEntry.pack(padx=5, side=ctk.LEFT)
+        ctk.CTkButton(master=childFr, text="ADD", command=button_event_add_service).pack(padx=5, side=ctk.LEFT)
         
         # Reload and Edit services button
         editServiceFr = ctk.CTkFrame(master=bottomLeftFr, fg_color="gray13")
-        editServiceFr.pack(padx=5, pady=5, fill=ctk.Y, expand=True)
+        editServiceFr.pack(padx=5, fill=ctk.Y, expand=True)
         ctk.CTkButton(master=editServiceFr, text="RELOAD SERVICES", command=button_event_reload_services).pack(padx=5, pady=5, side=ctk.BOTTOM)
         ctk.CTkButton(master=editServiceFr, text="EDIT SERVICES", command=button_event_edit_services).pack(padx=5, pady=5, side=ctk.BOTTOM)
 
@@ -426,12 +433,13 @@ def read_test_data():
         file = open(js['TEST_DATA'], 'r')
         reader = csv.reader(file)
         counter = 0
-        file.close()
 
         for record in reader:
             cursor.execute(f"INSERT INTO {TABLE_NAME} (name, service, email, contactNumber, responded) VALUES (%s,%s,%s,%s,%s)", (f"{record[0]}", f"{record[1]}", f"{record[2]}", f"{record[3]}", f"0"))
             db.commit()
             counter += 1
+        
+        file.close()
 
         logging.debug('{}'.format(f"Successfully read {counter} files into {TABLE_NAME}"))
     except FileNotFoundError as e:
