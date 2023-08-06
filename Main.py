@@ -1,19 +1,21 @@
-from typing import Optional, Tuple, Union
 import customtkinter as ctk
 from tkinter import messagebox
-import win32com.client
 import mysql.connector
-from functools import partial
 import os
 import logging
-import csv
 import json
 import time
-from PIL import Image
+import win32com.client
+from functools import partial
+import Database
+import Application
 
 ## TODO
 # implement deselect all and saving when moving across pages
 # reset scrollbar when navigating pages or performing another query
+# change string concatentation of SQL queries to prevent injection attacks
+# add ability to drop tables and delete database for further testing
+# move ResultFramse and App to own files for readability
 
 class ResultFrame(ctk.CTkFrame):
     def __init__(self, master, pageNum, **kwargs):
@@ -55,6 +57,7 @@ class ResultFrame(ctk.CTkFrame):
 
             #Delete and Open Email Buttons
             ctk.CTkButton(master=result, text="Open Email", width=80, command=partial(button_event_email_open, app.GLOBAL_RESULTS[pageNum][x][2])).grid(row=x, column=6, padx=2, pady=5, sticky=ctk.E)
+
 
 
 class App(ctk.CTk):
@@ -116,9 +119,9 @@ class App(ctk.CTk):
             try:
                 cursor.execute(f"INSERT INTO {TABLE_NAME} (name, service, email, contactNumber, responded) VALUES (%s,%s,%s,%s,%s)", (f"{nameEntry.get()}", f"{serviceEntry.get()}", f"{emailEntry.get()}", f"{contactEntry.get()}", f"{respondedEntry.get()}"))
                 db.commit()
-                logging.debug('{}'.format(f"Successfully insert into: {TABLE_NAME} - INFO: {nameEntry.get()}, {serviceEntry.get()}, {emailEntry.get()}, {contactEntry.get()}, {respondedEntry.get()}"))
+                logger.info('{}'.format(f"Successfully insert into: {TABLE_NAME} - INFO: {nameEntry.get()}, {serviceEntry.get()}, {emailEntry.get()}, {contactEntry.get()}, {respondedEntry.get()}"))
             except mysql.connector.Error as e:
-                logging.debug('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
+                logger.error('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
             
             # resetting all fields
             nameEntry.delete(0, 50)
@@ -165,7 +168,7 @@ class App(ctk.CTk):
             # Incase new query yields no results
             if len(results) == 0:
                 clear_frame()
-                ctk.CTkLabel(master=results, text="No Results...").pack()
+                ctk.CTkLabel(master=resultsScroll, text="No Results...").pack()
                 return
             
             # Calculate max pages and configure page 1
@@ -188,11 +191,11 @@ class App(ctk.CTk):
             try:
                 cursor.execute(f"DELETE FROM {TABLE_NAME} WHERE personID IN ({removal_list})")
                 db.commit()
-                logging.debug('{}'.format(f"Successfully deleted {cursor.rowcount} entries from: {TABLE_NAME}"))
+                logger.info('{}'.format(f"Successfully deleted {cursor.rowcount} entries from: {TABLE_NAME}"))
                 self.REMOVAL_LIST.clear()
                 repeat_search()
             except mysql.connector.Error as e:
-                logging.debug('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
+                logger.error('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
             return
 
         
@@ -381,86 +384,15 @@ class App(ctk.CTk):
         ctk.CTkButton(master=editServiceFr, text="EDIT SERVICES", command=button_event_edit_services).pack(padx=5, pady=5, side=ctk.BOTTOM)
 
 
-def connect_database():
-    # Database Connection
-    try:
-        db = mysql.connector.connect(
-            host=HOST,
-            user=USER,
-            passwd=PASSWD,
-            database=DATABASE
-        )
-        logging.debug('{}'.format(f"Successfully connected to database: {DATABASE}"))
-        return db
-    except mysql.connector.Error as e:
-            logging.debug('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
-            logging.debug('{}'.format(f"Attempting to create database {DATABASE}"))
-            return create_database()
-
-
-def create_database():
-    try:
-        db = mysql.connector.connect(
-            host=HOST,
-            user=USER,
-            passwd=PASSWD
-        )
-
-        cursor = db.cursor(buffered=True)
-
-        cursor.execute(f"CREATE DATABASE {DATABASE}")
-        logging.debug('{}'.format(f"Successfully created database: {DATABASE}"))
-
-        db = mysql.connector.connect(
-                host=HOST,
-                user=USER,
-                passwd=PASSWD,
-                database=DATABASE
-            )
-        cursor = db.cursor(buffered=True)
-
-        cursor.execute(f"CREATE TABLE {TABLE_NAME} (name VARCHAR(50), service VARCHAR(50), email VARCHAR(50), contactNumber VARCHAR(30), responded BOOL, personID int PRIMARY KEY AUTO_INCREMENT)")
-        logging.debug('{}'.format(f"Successfully created table: {TABLE_NAME}"))
-
-        return db
-    except mysql.connector.Error as e:
-        logging.debug('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
-
-
-def read_test_data():
-    logging.debug('{}'.format(f"Attempting to read {js['TEST_DATA']}"))
-    try:
-        file = open(js['TEST_DATA'], 'r')
-        reader = csv.reader(file)
-        counter = 0
-
-        for record in reader:
-            cursor.execute(f"INSERT INTO {TABLE_NAME} (name, service, email, contactNumber, responded) VALUES (%s,%s,%s,%s,%s)", (f"{record[0]}", f"{record[1]}", f"{record[2]}", f"{record[3]}", f"0"))
-            db.commit()
-            counter += 1
-        
-        file.close()
-
-        logging.debug('{}'.format(f"Successfully read {counter} files into {TABLE_NAME}"))
-    except FileNotFoundError as e:
-        logging.debug('{}'.format(f"ERROR: {e.errno} - MESSAGE: {e.strerror}"))
-    except mysql.connector.Error as e:
-        logging.debug('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
-
-
-def open_outlook():
-    try:
-        logging.debug('{}'.format(f"Attempting to open Outlook Application"))
-        os.startfile(OUTLOOK_LOC)
-        logging.debug('{}'.format(f"Successfully opened Outlook Application"))
-        os.close
-    except FileNotFoundError as e:
-        logging.debug('{}'.format(f"ERROR: {e.errno} - {e}"))
-    except PermissionError as e:
-        logging.debug('{}'.format(f"ERROR: {e.errno} - {e}"))
-
 ## MAIN CODE
-logging.basicConfig(filename='Logs.log', level=logging.DEBUG, format='%(asctime)s:%(message)s')
+log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+logger = logging.getLogger(__name__)
+logger.setLevel('DEBUG')
+file_handler = logging.FileHandler('Logs.log')
+formatter = logging.Formatter(log_format)
+file_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
 
 # Reading user configuration
 with open('information.txt') as f:
@@ -468,7 +400,7 @@ with open('information.txt') as f:
     js = json.loads(data)
     f.close()
 
-# Constants
+# Constants from json file
 HOST = js["HOST"]
 USER = js["USER"]
 PASSWD = js["PASSWD"]
@@ -477,6 +409,7 @@ TABLE_NAME = js["TABLE_NAME"]
 APP_NAME = js["APP_NAME"]
 OUTLOOK_LOC = js["OUTLOOK_LOC"]
 MAX_RESULTS_PPAGE = js["MAX_RESULTS_PPAGE"]
+TEST_DATA = js["TEST_DATA"]
 
 # Reading available services
 services = []
@@ -488,18 +421,18 @@ with open('services.txt') as f:
 
 db = None
 while (db == None):
-    db = connect_database()
+    db = Database.connect_database(host=HOST, user=USER, passwd=PASSWD, database=DATABASE, table_name=TABLE_NAME)
 
 
 cursor = db.cursor(buffered=True)
 
 if js["READ_TEST_DATA"] == "True":
-    read_test_data()
+    Database.read_test_data(db=db, cursor=cursor, table_name=TABLE_NAME, test_data=TEST_DATA)
 
 if js["OPEN_OUTLOOK"] == "True":
-    open_outlook()
+    Application.open_outlook(outlook_loc=OUTLOOK_LOC)
 
 app = App()
 app.mainloop()
 
-os.system('taskkill /F /IM outlook.exe')
+Application.close_outlook()
