@@ -1,23 +1,13 @@
-import customtkinter as ctk
-from tkinter import messagebox
-import mysql.connector
-import os
 import logging
 import json
-import time
-import win32com.client
-from functools import partial
 import Database
 import Application
 import GUI
 
 ## TODO
-# implement deselect all and saving when moving across pages
+# implement deselect all
 # reset scrollbar when navigating pages or performing another query
 # change string concatentation of SQL queries to prevent injection attacks
-# add ability to drop tables and delete database for further testing
-# move ResultFramse and App to own files for readability
-
 
 ## MAIN CODE
 log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'

@@ -17,16 +17,17 @@ file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
 
+
 class ResultPage(ctk.CTkFrame):
-    def __init__(self, master, pageNum, **kwargs):
+    def __init__(self, master, pageResults, removalList, checkBoxes, **kwargs):
         super().__init__(master, **kwargs)
 
         def checkbox_event_entry_selection(id):
-            if id in self.REMOVAL_LIST:
-                self.REMOVAL_LIST.remove(id)
+            if id in removalList:
+                removalList.remove(id)
                 print("removed")
             else:
-                self.REMOVAL_LIST.append(id)
+                removalList.append(id)
                 print("added")
 
 
@@ -36,27 +37,26 @@ class ResultPage(ctk.CTkFrame):
             email.To = emailAddress
             email.Display(True)
 
-
-        for x in range(len(self.GLOBAL_RESULTS[pageNum])):
+        for x in range(len(pageResults)):
             result = ctk.CTkFrame(master=master)
             result.pack(padx=5, pady=3, fill=ctk.BOTH, expand=True)
             # Results
-            if self.GLOBAL_RESULTS[pageNum][x][5] in self.REMOVAL_LIST:
-                temp = ctk.CTkCheckBox(master=result, text=None, width=0, command=partial(checkbox_event_entry_selection, app.GLOBAL_RESULTS[pageNum][x][5]))
+            if pageResults[x][5] in removalList:
+                temp = ctk.CTkCheckBox(master=result, text=None, width=0, command=partial(checkbox_event_entry_selection, pageResults[x][5]))
                 temp.grid(row=x, column=1, padx=10, pady=5)
                 temp.select()
             else:
-                temp = ctk.CTkCheckBox(master=result, text=None, width=0, command=partial(checkbox_event_entry_selection, app.GLOBAL_RESULTS[pageNum][x][5]))
+                temp = ctk.CTkCheckBox(master=result, text=None, width=0, command=partial(checkbox_event_entry_selection, pageResults[x][5]))
                 temp.grid(row=x, column=1, padx=10, pady=5)
-                self.CHECK_BOXES.append(temp)
+                checkBoxes.append(temp)
             
-            ctk.CTkLabel(master=result, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][0], width=150).grid(row=x, column=2, padx=10, pady=5)
-            ctk.CTkLabel(master=result, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][1], width=150).grid(row=x, column=3, padx=10, pady=5)
-            ctk.CTkLabel(master=result, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][2], width=200).grid(row=x, column=4, padx=10, pady=5)
-            ctk.CTkLabel(master=result, corner_radius=0, text=self.GLOBAL_RESULTS[pageNum][x][3], width=150).grid(row=x, column=5, padx=10, pady=5)
+            ctk.CTkLabel(master=result, corner_radius=0, text=pageResults[x][0], width=150).grid(row=x, column=2, padx=10, pady=5)
+            ctk.CTkLabel(master=result, corner_radius=0, text=pageResults[x][1], width=150).grid(row=x, column=3, padx=10, pady=5)
+            ctk.CTkLabel(master=result, corner_radius=0, text=pageResults[x][2], width=200).grid(row=x, column=4, padx=10, pady=5)
+            ctk.CTkLabel(master=result, corner_radius=0, text=pageResults[x][3], width=150).grid(row=x, column=5, padx=10, pady=5)
 
             #Delete and Open Email Buttons
-            ctk.CTkButton(master=result, text="Open Email", width=80, command=partial(button_event_email_open, self.GLOBAL_RESULTS[pageNum][x][2])).grid(row=x, column=6, padx=2, pady=5, sticky=ctk.E)
+            ctk.CTkButton(master=result, text="Open Email", width=80, command=partial(button_event_email_open, pageResults[x][2])).grid(row=x, column=6, padx=2, pady=5, sticky=ctk.E)
 
 
 class App(ctk.CTk):
@@ -65,14 +65,13 @@ class App(ctk.CTk):
         self.geometry("1280x720")
         self.maxsize(1280, 720)
         self.title(APP_NAME)
-        self.GLOBAL_RESULTS = []
-        self.REMOVAL_LIST = []
         self.MAX_PAGES = 0
         self.CURRENT_PAGE = 1
         self.RESULTS_PER_PAGE = MAX_RESULTS_PPAGE
         self.LAST_QUERY = ""
+        self.ALL_RESULTS = []
+        self.REMOVAL_LIST = []
         self.CHECK_BOXES = []
-        self.temp = []
 
         # Setting window appearances
         ctk.set_appearance_mode("dark")
@@ -108,7 +107,7 @@ class App(ctk.CTk):
             curPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
             
             # Split results into array of lists for each page
-            self.GLOBAL_RESULTS = [results[x:x+self.RESULTS_PER_PAGE] for x in range(0, len(results), self.RESULTS_PER_PAGE)]
+            self.ALL_RESULTS = [results[x:x+self.RESULTS_PER_PAGE] for x in range(0, len(results), self.RESULTS_PER_PAGE)]
             
             clear_frame()
             load_results(self.CURRENT_PAGE - 1)
@@ -185,17 +184,17 @@ class App(ctk.CTk):
             curPage.configure(text=f"{self.CURRENT_PAGE}/{self.MAX_PAGES}")
             
             # Split results into array of lists for each page
-            self.GLOBAL_RESULTS = [results[x:x+self.RESULTS_PER_PAGE] for x in range(0, len(results), self.RESULTS_PER_PAGE)]
+            self.ALL_RESULTS = [results[x:x+self.RESULTS_PER_PAGE] for x in range(0, len(results), self.RESULTS_PER_PAGE)]
             
             load_results(0)
         
 
         def button_event_delete():
-            removal_list = ','.join(str(int(x)) for x in self.REMOVAL_LIST)
+            removeIDs = ','.join(str(int(x)) for x in self.REMOVAL_LIST)
 
             # Selects individual from database, deletes and logs
             try:
-                cursor.execute(f"DELETE FROM {TABLE_NAME} WHERE personID IN ({removal_list})")
+                cursor.execute(f"DELETE FROM {TABLE_NAME} WHERE personID IN ({removeIDs})")
                 db.commit()
                 logger.info('{}'.format(f"Successfully deleted {cursor.rowcount} entries from: {TABLE_NAME}"))
                 self.REMOVAL_LIST.clear()
@@ -237,10 +236,10 @@ class App(ctk.CTk):
         
 
         def checkbox_event_select_all():
-            if len(self.CHECK_BOXES) == self.RESULTS_PER_PAGE:
-                for checkbox in self.CHECK_BOXES:
-                    checkbox.toggle()
-                return
+            #if len(self.CHECK_BOXES) == self.RESULTS_PER_PAGE:
+            #    for checkbox in self.CHECK_BOXES:
+            #        checkbox.toggle()
+            #    return
         
             for checkbox in self.CHECK_BOXES:
                 if checkbox.get() == 0:
@@ -273,7 +272,7 @@ class App(ctk.CTk):
             print("Loading. Starting counter")
             start = time.perf_counter()
 
-            ResultPage(master=resultsScroll, pageNum=pageNum)
+            ResultPage(master=resultsScroll, pageResults=self.ALL_RESULTS[pageNum], removalList=self.REMOVAL_LIST, checkBoxes=self.CHECK_BOXES)
             
             print("Time to load Results: ", time.perf_counter()-start)
 
