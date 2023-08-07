@@ -9,4 +9,7 @@
     "MAX_RESULTS_PPAGE": 30,
     "READ_TEST_DATA": "False",
     "TEST_DATA": "testData.csv",
-    "OPEN_OUTLOOK": "False"}
+    "OPEN_OUTLOOK": "False",
+    "DEL_TABLE": "True",
+    "DEL_DATABASE": "True"
+    }
