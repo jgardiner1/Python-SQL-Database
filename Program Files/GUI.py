@@ -39,7 +39,7 @@ class ResultPage(ctk.CTkFrame):
             email.Display(True)
         
         
-        result = ctk.CTkFrame(master=master)
+        result = ctk.CTkScrollableFrame(master=master)
         emailImage = ctk.CTkImage(dark_image=Image.open("Program Files/icons8-mail-64.png"))
         for x in range(len(pageResults)):
             if x % 2 == 0:
@@ -100,7 +100,7 @@ class App(ctk.CTk):
             print("\nClearing frame")
             start = time.perf_counter()
 
-            for widget in resultsScroll.winfo_children():
+            for widget in resultsFrame.winfo_children():
                 widget.destroy()
 
             print("Time to clear frame: ", time.perf_counter()-start)
@@ -184,7 +184,7 @@ class App(ctk.CTk):
             # Incase new query yields no results
             if len(results) == 0:
                 clear_frame()
-                ctk.CTkLabel(master=resultsScroll, text="No Results...").pack()
+                ctk.CTkLabel(master=resultsFrame, text="No Results...").pack()
                 return
             
             # Calculate max pages and configure page 1
@@ -283,9 +283,7 @@ class App(ctk.CTk):
             print("Loading. Starting counter")
             start = time.perf_counter()
 
-            rf = ResultPage(master=resultsScroll, pageResults=self.ALL_RESULTS[pageNum], removalList=self.REMOVAL_LIST, checkBoxes=self.CHECK_BOXES)
-            #rf.show()
-            #ResultPage(master=resultsScroll, pageResults=self.ALL_RESULTS[pageNum + 1], removalList=self.REMOVAL_LIST, checkBoxes=self.CHECK_BOXES)
+            ResultPage(master=resultsFrame, pageResults=self.ALL_RESULTS[pageNum], removalList=self.REMOVAL_LIST, checkBoxes=self.CHECK_BOXES)
             
             print("Time to load Results: ", time.perf_counter()-start)
 
@@ -295,11 +293,10 @@ class App(ctk.CTk):
         rightFr.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True, side=ctk.RIGHT)
 
         # Title
-        ctk.CTkLabel(master=rightFr, text="RESULTS", fg_color="transparent", font=("Barlow Condensed", 25)).pack(pady=7)
+        ctk.CTkLabel(master=rightFr, text="RESULTS", font=("Barlow Condensed", 25)).pack(pady=7)
 
-        # Frame holds results
-        resultsScroll = ctk.CTkScrollableFrame(master=rightFr)
-        resultsScroll.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
+        resultsFrame = ctk.CTkFrame(master=rightFr, fg_color="transparent")
+        resultsFrame.pack(fill=ctk.BOTH, expand=True, padx=10, pady=10)
 
         buttonsFr = ctk.CTkFrame(master=rightFr)
         buttonsFr.pack(fill=ctk.X, expand=True, side=ctk.RIGHT, padx=10, pady=(0, 10))

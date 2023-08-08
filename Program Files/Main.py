@@ -11,8 +11,6 @@ import GUI
 
 ## TODO
 # implement deselect all
-# reset scrollbar when navigating pages or performing another query
-# change string concatentation of SQL queries to prevent injection attacks
 
 ## MAIN CODE
 log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
