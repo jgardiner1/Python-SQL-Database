@@ -5,7 +5,6 @@ import Application
 import GUI
 
 """
-<a href="https://www.flaticon.com/free-icons/email" title="email icons">Email icons created by Freepik - Flaticon
 <a target="_blank" href="https://icons8.com/icon/114083/letter">Mail</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
 """
 
