@@ -4,6 +4,11 @@ import Database
 import Application
 import GUI
 
+"""
+<a href="https://www.flaticon.com/free-icons/email" title="email icons">Email icons created by Freepik - Flaticon
+<a target="_blank" href="https://icons8.com/icon/114083/letter">Mail</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+"""
+
 ## TODO
 # implement deselect all
 # reset scrollbar when navigating pages or performing another query
@@ -13,14 +18,14 @@ import GUI
 log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logger = logging.getLogger(__name__)
 logger.setLevel('DEBUG')
-file_handler = logging.FileHandler('Logs.log')
+file_handler = logging.FileHandler('Program Files/Logs.log')
 formatter = logging.Formatter(log_format)
 file_handler.setFormatter(formatter)
 
 logger.addHandler(file_handler)
 
 # Reading user configuration
-with open('information.txt') as f:
+with open('Program Files/information.txt') as f:
     data = f.read()
     js = json.loads(data)
     f.close()

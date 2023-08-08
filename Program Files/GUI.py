@@ -6,11 +6,12 @@ import time
 import logging
 import mysql.connector
 import os
+from PIL import Image
 
 log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logger = logging.getLogger(__name__)
 logger.setLevel('DEBUG')
-file_handler = logging.FileHandler('Logs.log')
+file_handler = logging.FileHandler('Program Files/Logs.log')
 formatter = logging.Formatter(log_format)
 file_handler.setFormatter(formatter)
 
@@ -36,28 +37,38 @@ class ResultPage(ctk.CTkFrame):
             email = outlook.CreateItem(0)
             email.To = emailAddress
             email.Display(True)
-
+        
+        
+        result = ctk.CTkFrame(master=master)
+        emailImage = ctk.CTkImage(dark_image=Image.open("Program Files/icons8-mail-64.png"))
         for x in range(len(pageResults)):
-            result = ctk.CTkFrame(master=master)
-            result.pack(padx=5, pady=3, fill=ctk.BOTH, expand=True)
+            if x % 2 == 0:
+                colour = "gray13"
+            else:
+                colour = "gray16"
+            
             # Results
             if pageResults[x][5] in removalList:
-                temp = ctk.CTkCheckBox(master=result, text=None, width=0, command=partial(checkbox_event_entry_selection, pageResults[x][5]))
-                temp.grid(row=x, column=1, padx=10, pady=5)
+                temp = ctk.CTkCheckBox(master=result, text=None, width=50, height=33, command=partial(checkbox_event_entry_selection, pageResults[x][5]), bg_color=colour)
+                temp.grid(row=x, column=1, padx=(10, 0), ipady=5)
                 temp.select()
             else:
-                temp = ctk.CTkCheckBox(master=result, text=None, width=0, command=partial(checkbox_event_entry_selection, pageResults[x][5]))
-                temp.grid(row=x, column=1, padx=10, pady=5)
-                checkBoxes.append(temp)
+                temp = ctk.CTkCheckBox(master=result, text=None, width=50, height=33, command=partial(checkbox_event_entry_selection, pageResults[x][5]), bg_color=colour)
+                temp.grid(row=x, column=1, padx=(10, 0), ipady=5)
+                #checkBoxes.append(temp)
             
-            ctk.CTkLabel(master=result, corner_radius=0, text=pageResults[x][0], width=150).grid(row=x, column=2, padx=10, pady=5)
-            ctk.CTkLabel(master=result, corner_radius=0, text=pageResults[x][1], width=150).grid(row=x, column=3, padx=10, pady=5)
-            ctk.CTkLabel(master=result, corner_radius=0, text=pageResults[x][2], width=200).grid(row=x, column=4, padx=10, pady=5)
-            ctk.CTkLabel(master=result, corner_radius=0, text=pageResults[x][3], width=150).grid(row=x, column=5, padx=10, pady=5)
+            ctk.CTkLabel(master=result, corner_radius=0, text=pageResults[x][0], width=200, height=38, fg_color=colour).grid(row=x, column=2, padx=0)
+            ctk.CTkLabel(master=result, corner_radius=0, text=pageResults[x][1], width=150, height=38, fg_color=colour).grid(row=x, column=3, padx=0)
+            ctk.CTkLabel(master=result, corner_radius=0, text=pageResults[x][2], width=250, height=38, fg_color=colour).grid(row=x, column=4, padx=0)
+            ctk.CTkLabel(master=result, corner_radius=0, text=pageResults[x][3], width=150, height=38, fg_color=colour).grid(row=x, column=5, padx=0)
 
             #Delete and Open Email Buttons
-            ctk.CTkButton(master=result, text="Open Email", width=80, command=partial(button_event_email_open, pageResults[x][2])).grid(row=x, column=6, padx=2, pady=5, sticky=ctk.E)
+            ctk.CTkButton(master=result, image=emailImage, text=None, width=56, height=28, border_color=colour, border_width=7, command=partial(button_event_email_open, pageResults[x][2]), bg_color=colour).grid(row=x, column=7, padx=0, pady=5, sticky=ctk.E)
+        result.pack(padx=5, pady=3, fill=ctk.BOTH, expand=True)
 
+
+    def show(self):
+        self.temp.pack(padx=5, pady=3, fill=ctk.BOTH, expand=True)
 
 class App(ctk.CTk):
     def __init__(self, APP_NAME, TABLE_NAME, MAX_RESULTS_PPAGE, cursor, db, *args, **kwargs):
@@ -79,7 +90,7 @@ class App(ctk.CTk):
 
         # Reading available services
         services = []
-        with open('services.txt') as f:
+        with open('Program Files/services.txt') as f:
             services = [l for l in (line.strip() for line in f) if l]
             services.insert(0, "None")
             f.close()
@@ -209,7 +220,7 @@ class App(ctk.CTk):
             if addServiceEntry.get() in button_event_reload_services():
                 messagebox.showerror('ERROR', 'Service already within list')
             else:
-                file = open('services.txt', 'a')
+                file = open('Program Files/services.txt', 'a')
                 file.write(f"\n{addServiceEntry.get()}")
                 file.close()
 
@@ -220,7 +231,7 @@ class App(ctk.CTk):
 
         def button_event_reload_services():
             # Reading available services
-            with open('services.txt') as f:
+            with open('Program Files/services.txt') as f:
                 services = [l for l in (line.strip() for line in f) if l]
                 services.insert(0, "None")
                 f.close()
@@ -231,7 +242,7 @@ class App(ctk.CTk):
         
         
         def button_event_edit_services():
-            os.system('services.txt')
+            os.system('Program Files/services.txt')
             return
         
 
@@ -272,7 +283,9 @@ class App(ctk.CTk):
             print("Loading. Starting counter")
             start = time.perf_counter()
 
-            ResultPage(master=resultsScroll, pageResults=self.ALL_RESULTS[pageNum], removalList=self.REMOVAL_LIST, checkBoxes=self.CHECK_BOXES)
+            rf = ResultPage(master=resultsScroll, pageResults=self.ALL_RESULTS[pageNum], removalList=self.REMOVAL_LIST, checkBoxes=self.CHECK_BOXES)
+            #rf.show()
+            #ResultPage(master=resultsScroll, pageResults=self.ALL_RESULTS[pageNum + 1], removalList=self.REMOVAL_LIST, checkBoxes=self.CHECK_BOXES)
             
             print("Time to load Results: ", time.perf_counter()-start)
 

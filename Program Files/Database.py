@@ -5,7 +5,7 @@ import csv
 log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logger = logging.getLogger(__name__)
 logger.setLevel('DEBUG')
-file_handler = logging.FileHandler('Logs.log')
+file_handler = logging.FileHandler('Program Files/Logs.log')
 formatter = logging.Formatter(log_format)
 file_handler.setFormatter(formatter)
 
