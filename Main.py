@@ -51,7 +51,6 @@ if DEL_TABLE == "True":
     Database.delete_table(cursor=cursor, table=TABLE_NAME)
 if DEL_DATABASE == "True":
     Database.delete_database(cursor=cursor, db=db, database=DATABASE)
-    print("Table and Database sucessfully deleted. Exiting")
     exit(0)
 
 if js["READ_TEST_DATA"] == "True":
@@ -64,3 +63,5 @@ app = GUI.App(APP_NAME=APP_NAME, TABLE_NAME=TABLE_NAME, MAX_RESULTS_PPAGE=MAX_RE
 app.mainloop()
 
 Application.close_outlook()
+
+Database.close_connection(db)

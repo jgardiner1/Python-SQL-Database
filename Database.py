@@ -96,3 +96,8 @@ def delete_table(cursor, table):
     except mysql.connector.Error as e:
             logger.error('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
             logger.error('{}'.format(f"Could not delete table: {table}"))
+
+
+def close_connection(db: mysql.connector.CMySQLConnection):
+    db.close()
+    logger.info('{}'.format(f"Successfully closed connection"))

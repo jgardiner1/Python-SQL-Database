@@ -38,7 +38,7 @@ class ResultPage(ctk.CTkFrame):
             email.To = emailAddress
             email.Display(True)
         
-        
+        start = time.perf_counter()
         result = ctk.CTkScrollableFrame(master=master)
         emailImage = ctk.CTkImage(dark_image=Image.open("icons8-mail-64.png"))
         for x in range(len(pageResults)):
@@ -65,6 +65,7 @@ class ResultPage(ctk.CTkFrame):
             #Delete and Open Email Buttons
             ctk.CTkButton(master=result, image=emailImage, text=None, width=56, height=28, border_color=colour, border_width=7, command=partial(button_event_email_open, pageResults[x][2]), bg_color=colour).grid(row=x, column=7, padx=0, pady=5, sticky=ctk.E)
         result.pack(padx=5, pady=3, fill=ctk.BOTH, expand=True)
+        print(f"Frame created in: {time.perf_counter() - start}")
 
 
     def show(self):
@@ -103,7 +104,7 @@ class App(ctk.CTk):
             for widget in resultsFrame.winfo_children():
                 widget.destroy()
 
-            print("Time to clear frame: ", time.perf_counter()-start)
+            print("Frame cleared in: ", time.perf_counter()-start)
         
 
         def repeat_search():
@@ -187,6 +188,7 @@ class App(ctk.CTk):
                 ctk.CTkLabel(master=resultsFrame, text="No Results...").pack()
                 return
             
+            start = time.perf_counter()
             # Calculate max pages and configure page 1
             if len(results) % self.RESULTS_PER_PAGE != 0:
                 self.MAX_PAGES = (len(results) // self.RESULTS_PER_PAGE) + 1
@@ -196,6 +198,7 @@ class App(ctk.CTk):
             
             # Split results into array of lists for each page
             self.ALL_RESULTS = [results[x:x+self.RESULTS_PER_PAGE] for x in range(0, len(results), self.RESULTS_PER_PAGE)]
+            print(f"calculate pages and split results took: {time.perf_counter() - start}")
             
             load_results(0)
         
@@ -279,14 +282,8 @@ class App(ctk.CTk):
 
         def load_results(pageNum):
             clear_frame()
-
-            print("Loading. Starting counter")
-            start = time.perf_counter()
-
             ResultPage(master=resultsFrame, pageResults=self.ALL_RESULTS[pageNum], removalList=self.REMOVAL_LIST, checkBoxes=self.CHECK_BOXES)
             
-            print("Time to load Results: ", time.perf_counter()-start)
-
 
         ## RESULTS FRAME
         rightFr = ctk.CTkFrame(master=self)
@@ -295,7 +292,7 @@ class App(ctk.CTk):
         # Title
         ctk.CTkLabel(master=rightFr, text="RESULTS", font=("Barlow Condensed", 25)).pack(pady=7)
 
-        resultsFrame = ctk.CTkFrame(master=rightFr, fg_color="transparent")
+        resultsFrame = ctk.CTkFrame(master=rightFr, fg_color="transparent", border_color="gray16", border_width=3)
         resultsFrame.pack(fill=ctk.BOTH, expand=True, padx=10, pady=10)
 
         buttonsFr = ctk.CTkFrame(master=rightFr)
