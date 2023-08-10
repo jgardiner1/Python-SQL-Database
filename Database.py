@@ -89,10 +89,11 @@ def delete_database(cursor, db, database):
         logger.error('{}'.format(f"Could not delete database: {database}"))
 
 
-def delete_table(cursor, table):
+def delete_table(cursor, db, table, database):
     try:
-        cursor.execute("DROP TABLE {table}}")
-        logger.info('{}'.format(f"Successfully deleted table: {table}"))
+        cursor.execute(f"DROP TABLE {table}")
+        db.commit()
+        logger.info('{}'.format(f"Successfully deleted table: {table} from {database}"))
     except mysql.connector.Error as e:
             logger.error('{}'.format(f"ERROR: {e.errno} - SQLSTATE value: {e.sqlstate} - Error Message: {e.msg}"))
             logger.error('{}'.format(f"Could not delete table: {table}"))

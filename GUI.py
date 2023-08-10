@@ -49,11 +49,11 @@ class ResultPage(ctk.CTkFrame):
             
             # Results
             if pageResults[x][5] in removalList:
-                temp = ctk.CTkCheckBox(master=result, text=None, width=50, height=33, command=partial(checkbox_event_entry_selection, pageResults[x][5]), bg_color=colour)
+                temp = ctk.CTkCheckBox(master=result, text=None, width=50, height=28, command=partial(checkbox_event_entry_selection, pageResults[x][5]), bg_color=colour)
                 temp.grid(row=x, column=1, padx=(10, 0), ipady=5)
                 temp.select()
             else:
-                temp = ctk.CTkCheckBox(master=result, text=None, width=50, height=33, command=partial(checkbox_event_entry_selection, pageResults[x][5]), bg_color=colour)
+                temp = ctk.CTkCheckBox(master=result, text=None, width=50, height=28, command=partial(checkbox_event_entry_selection, pageResults[x][5]), bg_color=colour)
                 temp.grid(row=x, column=1, padx=(10, 0), ipady=5)
                 #checkBoxes.append(temp)
             
@@ -63,13 +63,10 @@ class ResultPage(ctk.CTkFrame):
             ctk.CTkLabel(master=result, corner_radius=0, text=pageResults[x][3], width=150, height=38, fg_color=colour).grid(row=x, column=5, padx=0)
 
             #Delete and Open Email Buttons
-            ctk.CTkButton(master=result, image=emailImage, text=None, width=56, height=28, border_color=colour, border_width=7, command=partial(button_event_email_open, pageResults[x][2]), bg_color=colour).grid(row=x, column=7, padx=0, pady=5, sticky=ctk.E)
+            ctk.CTkButton(master=result, image=emailImage, text=None, width=56, height=28, border_color=colour, border_width=6, command=partial(button_event_email_open, pageResults[x][2]), bg_color=colour).grid(row=x, column=7, padx=0, pady=5, sticky=ctk.E)
         result.pack(padx=5, pady=3, fill=ctk.BOTH, expand=True)
         print(f"Frame created in: {time.perf_counter() - start}")
 
-
-    def show(self):
-        self.temp.pack(padx=5, pady=3, fill=ctk.BOTH, expand=True)
 
 class App(ctk.CTk):
     def __init__(self, APP_NAME, TABLE_NAME, MAX_RESULTS_PPAGE, cursor, db, *args, **kwargs):
@@ -185,7 +182,7 @@ class App(ctk.CTk):
             # Incase new query yields no results
             if len(results) == 0:
                 clear_frame()
-                ctk.CTkLabel(master=resultsFrame, text="No Results...").pack()
+                ctk.CTkLabel(master=resultsFrame, text="No Results...").pack(pady=10)
                 return
             
             start = time.perf_counter()
@@ -308,7 +305,7 @@ class App(ctk.CTk):
 
         ctk.CTkFrame(master=buttonsFr, height=20, fg_color="gray16").pack(pady=10, fill=ctk.X, expand=True, side=ctk.LEFT)
 
-        selectAllChk = ctk.CTkCheckBox(master=leftBottomFr, text="SELECT ALL", command=checkbox_event_select_all)
+        selectAllChk = ctk.CTkCheckBox(master=leftBottomFr, text="SELECT ALL", command=checkbox_event_select_all, state=ctk.DISABLED)
         selectAllChk.pack(padx=(20, 0), anchor=ctk.W)
         ctk.CTkButton(master=leftBottomFr, text="DELETE SELECTED RESULTS", command=button_event_delete).pack(padx=(20, 0), pady=10, anchor=ctk.W)
 

@@ -9,7 +9,7 @@ import GUI
 """
 
 ## TODO
-# implement deselect all
+# implement select/deselect all and save between navigating through pages
 
 ## MAIN CODE
 log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -48,7 +48,7 @@ while (db == None):
 cursor = db.cursor(buffered=True)
 
 if DEL_TABLE == "True":
-    Database.delete_table(cursor=cursor, table=TABLE_NAME)
+    Database.delete_table(cursor=cursor, db=db, table=TABLE_NAME, database=DATABASE)
 if DEL_DATABASE == "True":
     Database.delete_database(cursor=cursor, db=db, database=DATABASE)
     exit(0)
