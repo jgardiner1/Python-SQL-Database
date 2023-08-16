@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="https://github.com/jgardiner1/Python-SQL-Database/blob/main/Images/Project%20Logo.png" alt="Python-SQL-Database Profile" width="256" height="256">
+  <img src="https://github.com/jgardiner1/Python-SQL-Database/blob/main/Documentation Images/Project%20Logo.png" alt="Python-SQL-Database Profile" width="256" height="256">
   <br>
   Python-SQL-Database
   <br>
@@ -9,15 +9,15 @@
   <div class="inline-block" align="center">
       <div>
           <a href="https://www.python.org">
-              <img src="https://github.com/jgardiner1/Python-SQL-Database/blob/main/Images/Python%20Logo.png" alt="Python Logo" width="64" height="64">
+              <img src="https://github.com/jgardiner1/Python-SQL-Database/blob/main/Documentation Images/Python%20Logo.png" alt="Python Logo" width="64" height="64">
           </a>
         &nbsp;
           <a href="https://www.mysql.com">
-              <img src="https://github.com/jgardiner1/Python-SQL-Database/blob/main/Images/MySQL%20Logo.png" alt="MySQL Logo" width="64" height="64">
+              <img src="https://github.com/jgardiner1/Python-SQL-Database/blob/main/Documentation Images/MySQL%20Logo.png" alt="MySQL Logo" width="64" height="64">
           </a>
         &nbsp;
           <a href="https://customtkinter.tomschimansky.com">
-              <img src="https://github.com/jgardiner1/Python-SQL-Database/blob/main/Images/CustomTkinter_logo_dark%20Cropped.png" alt="Custom TKinter Logo" height="64", width="64">
+              <img src="https://github.com/jgardiner1/Python-SQL-Database/blob/main/Documentation Images/CustomTkinter_logo_dark%20Cropped.png" alt="Custom TKinter Logo" height="64", width="64">
           </a>
       </div>
   </div>
