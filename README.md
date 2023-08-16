@@ -6,7 +6,6 @@
 </h1>
 
 <h2 align="center">
-  <br>
   <div id="banner">
     <div class="inline-block" align="center">
         <div>
