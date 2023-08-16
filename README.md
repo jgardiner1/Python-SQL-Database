@@ -8,7 +8,6 @@
 <h2 align="center">
   Made with
   <br>
-  <br>
   <div id="banner">
     <div class="inline-block" align="center">
         <div>
