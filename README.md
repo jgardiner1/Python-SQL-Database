@@ -11,15 +11,13 @@
   <div id="banner">
     <div class="inline-block" align="center">
         <div>
-            <a href="https://www.python.org">
+            <a href="https://www.python.org" padding="10, 10, 0, 0">
                 <img src="https://github.com/jgardiner1/Python-SQL-Database/blob/main/Images/Python%20Logo.png" alt="Python Logo" width="32" height="32">
             </a>
-          •
-            <a href="https://www.mysql.com">
+            <a href="https://www.mysql.com" padding="10, 10, 0, 0">
                 <img src="https://github.com/jgardiner1/Python-SQL-Database/blob/main/Images/MySQL%20Logo.png" alt="MySQL Logo" width="32" height="32">
             </a>
-          •
-            <a href="https://customtkinter.tomschimansky.com">
+            <a href="https://customtkinter.tomschimansky.com" padding="10, 10, 0, 0">
                 <img src="https://github.com/jgardiner1/Python-SQL-Database/blob/main/Images/CustomTkinter_logo_dark%20Cropped.png" alt="Custom TKinter Logo" height="32">
             </a>
         </div>
