@@ -41,7 +41,6 @@
 
 ## About
 
-An SQL database framework, leveraging Python and MySQL with a user-friendly TKinter interface. 
 The original project was developed for a small business to streamline operations such as storing, retrieving and searching available contractors but can be adapted/changed to fit a variety of different use cases.
 
 ## Interface
