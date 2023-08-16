@@ -15,7 +15,7 @@
                 <img src="" alt="Python Logo" width="32" height="32">
             </a>
             <a href="https://www.mysql.com">
-                <img src="" alt="MySQL Logo" width="32" height="32">
+                <img src="https://github.com/jgardiner1/Python-SQL-Database/blob/main/Images/MySQL%20Logo.png" alt="MySQL Logo" width="32" height="32">
             </a>
             <a href="https://customtkinter.tomschimansky.com">
                 <img src="" alt="Custom TKinter Logo" width="32" height="32">
