@@ -12,10 +12,10 @@
     <div class="inline-block" align="center">
         <div>
             <a href="https://www.python.org">
-                <img src="" alt="Python Logo" width="32" height="32">
+                <img src="https://github.com/jgardiner1/Python-SQL-Database/blob/main/Images/kisspng-professional-python-programmer-computer-programmin-python-logo-download-5b47725c1cc0d6.3474912915314089881178.jpg" alt="Python Logo" width="32" height="32">
             </a>
             <a href="https://www.mysql.com">
-                <img src="" alt="MySQL Logo" width="32" height="32">
+                <img src="https://github.com/jgardiner1/Python-SQL-Database/blob/main/Images/MySQL%20Logo.png" alt="MySQL Logo" width="32" height="32">
             </a>
             <a href="https://customtkinter.tomschimansky.com">
                 <img src="" alt="Custom TKinter Logo" width="32" height="32">
