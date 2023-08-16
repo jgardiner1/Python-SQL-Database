@@ -1,8 +1,31 @@
-<h1 align="center">Python-SQL-Database<br></h1>
+<h1 align="center">
+  <img src="" alt="Python-SQL-Database Profile" width="256" height="256">
+  <br>
+  Python-SQL-Database
+  <br>
+</h1>
 
 <h2 align="center">
-  Overview
+  Made with
   <br>
+  <div id="banner">
+    <div class="inline-block" align="center">
+        <div>
+            <a href="https://www.python.org">
+                <img src="" alt="Python Logo" width="32" height="32">
+            </a>
+            <a href="https://www.mysql.com">
+                <img src="" alt="MySQL Logo" width="32" height="32">
+            </a>
+            <a href="https://customtkinter.tomschimansky.com">
+                <img src="" alt="Custom TKinter Logo" width="32" height="32">
+            </a>
+            <a href="https://www.youtube.com">
+                <img src="https://github.com/JamesGardiner1/BrianBot-Online/blob/main/images/YoutubeLogo.png?raw=true" alt="Youtube Logo" width="32" height="32">
+            </a>
+        </div>
+    </div>
+</div>
 </h1>
 
 An SQL database framework, leveraging Python and MySQL with a user-friendly TKinter interface. 
