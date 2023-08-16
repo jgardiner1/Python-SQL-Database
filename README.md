@@ -27,5 +27,25 @@
   </div>
 </h2>
 
+<h3 align="center">An SQL database framework, leveraging Python and MySQL with a user-friendly TKinter interface.</h3>
+
+<p align="center">
+  <a href="#About">About</a>
+  •
+  <a href="#Interface">Interface</a>
+  •
+  <a href="#Features">Features</a>
+  •
+  <a href="#To-do List">To-do List</a>
+</p>
+
+## About
+
 An SQL database framework, leveraging Python and MySQL with a user-friendly TKinter interface. 
-The original project was developed for a small business to streamline operations such as storing, retrieving and searching available contractors but can be adapted/changed to fit a variety 
+The original project was developed for a small business to streamline operations such as storing, retrieving and searching available contractors but can be adapted/changed to fit a variety of different use cases.
+
+## Interface
+
+## Features
+
+## To-do List
