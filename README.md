@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="" alt="Python-SQL-Database Profile" width="256" height="256">
+  <img src="https://github.com/jgardiner1/Python-SQL-Database/blob/main/Images/Project%20Logo.png" alt="Python-SQL-Database Profile" width="256" height="256">
   <br>
   Python-SQL-Database
   <br>
